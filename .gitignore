@@ -31,7 +31,7 @@ out/
 # Gradle
 .gradle/
 build/
-!gradle-wrapper.jar  # Исключаем gradle-wrapper.jar, он нужен для запуска проекта
+!gradle-wrapper.jar
 !gradle-wrapper.properties
 
 # Maven
