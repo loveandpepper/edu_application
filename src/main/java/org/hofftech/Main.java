@@ -1,17 +1,43 @@
 package org.hofftech;
+import lombok.extern.slf4j.Slf4j;
+import org.hofftech.controller.ConsoleController;
+import org.hofftech.handler.ImportCommandHandler;
+import org.hofftech.model.Package;
+import org.hofftech.model.PackageType;
+import org.hofftech.model.Truck;
+import org.hofftech.service.FileProcessingService;
+import org.hofftech.service.PackingService;
+import org.hofftech.service.TruckService;
+import org.hofftech.service.ValidatorService;
+import org.hofftech.util.FileParserUtil;
+import org.hofftech.util.FileReaderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.Arrays;
+import java.util.List;
+
+@Slf4j
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        Logger log = LoggerFactory.getLogger(Main.class);
+        log.info("Приложение запускается...");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        // Создаем все зависимости
+        PackingService packingService = new PackingService();
+        TruckService truckService = new TruckService(packingService);
+        ValidatorService validatorService = new ValidatorService();
+        FileReaderUtil fileReader = new FileReaderUtil();
+        FileParserUtil fileParser = new FileParserUtil();
+        FileProcessingService fileProcessingService = new FileProcessingService(fileReader, fileParser, validatorService, truckService);
+        ImportCommandHandler importCommandHandler = new ImportCommandHandler(fileProcessingService);
+
+        // Создаем и запускаем ConsoleController
+        ConsoleController consoleController = new ConsoleController(importCommandHandler);
+        consoleController.listen();
+
+        log.info("Приложение завершило работу.");
     }
 }
+
+
