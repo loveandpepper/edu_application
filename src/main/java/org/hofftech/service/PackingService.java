@@ -34,6 +34,27 @@ public class PackingService {
         return true;
     }
 
+    private boolean hasSufficientSupport(Truck truck, Package pkg, int startX, int startY) {
+        String[] shape = pkg.getType().getShape();
+        int width = shape[shape.length - 1].length(); // Нижняя строка упаковки
+        int supportCount = 0;
+
+        if (startY == Truck.getHEIGHT() - shape.length) {
+            // Упаковка на дне, дополнительная проверка не нужна
+            return true;
+        }
+
+        // Проверяем опору снизу
+        for (int x = 0; x < width; x++) {
+            if (shape[shape.length - 1].charAt(x) != ' ' &&
+                    truck.getGrid()[startY + shape.length][startX + x] != ' ') {
+                supportCount++;
+            }
+        }
+
+        return supportCount >= (width + 1) / 2; // Опора не менее половины ширины
+    }
+
     public boolean addPackage(Truck truck, Package pkg) {
         log.info("Пытаемся добавить упаковку {} в грузовик", pkg.getType());
         String[] shape = pkg.getType().getShape();
@@ -42,9 +63,11 @@ public class PackingService {
         for (int startY = Truck.getHEIGHT() - height; startY >= 0; startY--) {
             for (int startX = 0; startX <= Truck.getWIDTH() - 1; startX++) {
                 if (canAddPackage(truck, pkg, startX, startY)) {
-                    log.info("Упаковка {} успешно добавлена в координаты X={}, Y={}", pkg.getType(), startX, startY);
-                    placePackage(truck, pkg, startX, startY);
-                    return true;
+                    if (hasSufficientSupport(truck, pkg, startX, startY)) {
+                        log.info("Упаковка {} успешно добавлена в координаты X={}, Y={}", pkg.getType(), startX, startY);
+                        placePackage(truck, pkg, startX, startY);
+                        return true;
+                    }
                 }
             }
         }
