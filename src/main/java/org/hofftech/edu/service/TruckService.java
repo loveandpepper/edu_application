@@ -1,15 +1,14 @@
-package org.hofftech.service;
+package org.hofftech.edu.service;
 
-import org.hofftech.model.Truck;
-import org.hofftech.model.Package;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.model.Truck;
+import org.hofftech.edu.model.Package;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class TruckService {
-    private static final Logger log = LoggerFactory.getLogger(TruckService.class);
     private final PackingService packingService;
 
     public TruckService(PackingService packingService) {
@@ -19,21 +18,15 @@ public class TruckService {
     public List<Truck> addPackagesToMultipleTrucks(List<Package> packageList) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", packageList.size());
 
-        // Сортировка упаковок: сначала по высоте, затем по ширине
-        packageList.sort((a, b) -> {
-            int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
-            if (heightDiff == 0) {
-                return Integer.compare(b.getType().getWidth(), a.getType().getWidth());
-            }
-            return heightDiff;
-        });
-        log.info("Упаковки отсортированы по высоте и ширине.");
+        sortPackages(packageList);
+        List<Truck> trucks = createTruck();
+        placePackages(packageList, trucks);
 
-        List<Truck> trucks = new ArrayList<>();
-        Truck currentTruck = new Truck();
-        trucks.add(currentTruck);
-        log.info("Создан первый грузовик.");
+        log.info("Размещение завершено. Всего грузовиков: {}", trucks.size());
+        return trucks;
+    }
 
+    private void placePackages(List<Package> packageList, List<Truck> trucks) {
         for (Package pkg : packageList) {
             log.info("Пытаемся разместить упаковку {} с ID {}", pkg.getType(), pkg.getId());
             boolean placed = false;
@@ -56,9 +49,26 @@ public class TruckService {
                 }
             }
         }
+    }
 
-        log.info("Размещение завершено. Всего грузовиков: {}", trucks.size());
+    private static List<Truck> createTruck() {
+        List<Truck> trucks = new ArrayList<>();
+        Truck currentTruck = new Truck();
+        trucks.add(currentTruck);
+        log.info("Создан первый грузовик.");
         return trucks;
+    }
+
+    private static void sortPackages(List<Package> packageList) {
+        // Сортировка упаковок: сначала по высоте, затем по ширине
+        packageList.sort((a, b) -> {
+            int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
+            if (heightDiff == 0) {
+                return Integer.compare(b.getType().getWidth(), a.getType().getWidth());
+            }
+            return heightDiff;
+        });
+        log.info("Упаковки отсортированы по высоте и ширине.");
     }
 
     public void printTrucks(List<Truck> trucks) {
@@ -73,9 +83,9 @@ public class TruckService {
     }
 
     private void printTruck(Truck truck) {
-        for (int y = 0; y < Truck.getHEIGHT(); y++) {
+        for (int y = 0; y < truck.getHEIGHT(); y++) {
             System.out.print("+");
-            for (int x = 0; x < Truck.getWIDTH(); x++) {
+            for (int x = 0; x < truck.getWIDTH(); x++) {
                 System.out.print(truck.getGrid()[y][x]);
             }
             System.out.println("+");

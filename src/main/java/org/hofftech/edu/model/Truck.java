@@ -1,4 +1,4 @@
-package org.hofftech.model;
+package org.hofftech.edu.model;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -9,12 +9,10 @@ import java.util.List;
 @Getter
 @ToString
 public class Truck {
-    @Getter                             //почему-то константы нужно отдельно помечать, иначе не работает
-    private static final int WIDTH = 6;
-    @Getter
-    private static final int HEIGHT = 6;
+    private final int WIDTH = 6;
+    private final int HEIGHT = 6;
 
-    private final char[][] grid;
+    private char[][] grid;
     private final List<Package> packages;
 
     public Truck() {

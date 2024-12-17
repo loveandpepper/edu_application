@@ -1,17 +1,17 @@
-package org.hofftech.service;
+package org.hofftech.edu.service;
 
-import org.hofftech.model.Package;
-import org.hofftech.model.PackageType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.hofftech.edu.model.Package;
+import org.hofftech.edu.model.PackageType;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ValidatorService {
-    private static final Logger log = LoggerFactory.getLogger(ValidatorService.class);
-
-    public boolean validateFile(List<String> lines) {
-        if (lines.isEmpty()) {
+    public boolean isValidFile(List<String> lines) {
+        if (CollectionUtils.isEmpty(lines)) {
             log.error("Файл пустой или не содержит данных.");
             return false;
         }
@@ -19,20 +19,28 @@ public class ValidatorService {
         return true;
     }
 
-    public boolean validatePackages(List<Package> packages) {
+    public boolean isValidPackages(List<Package> packages) {
+        List<Package> invalidPackages = new ArrayList<>();
         for (Package pkg : packages) {
             if (!isValidPackage(pkg)) {
-                log.error("Упаковка с ID {} имеет некорректную форму: {}", pkg.getId(), pkg.getType().getShape());
-                return false;
+                invalidPackages.add(pkg);
             }
         }
+        if (!invalidPackages.isEmpty()) {
+            for (Package invalidPkg : invalidPackages) {
+                log.error("Упаковка с ID {} имеет некорректную форму: {}",
+                        invalidPkg.getId(), invalidPkg.getType().getShape());
+            }
+            return false;
+        }
+
         log.info("Все упаковки успешно проверены.");
         return true;
     }
 
     private boolean isValidPackage(Package pkg) {
         PackageType type = pkg.getType();
-        String[] shape = type.getShape();
+        List<String> shape = type.getShape();
 
         // Проверяем, что форма упаковки не имеет "выпадающих" символов
         int maxWidth = 0;
@@ -53,4 +61,6 @@ public class ValidatorService {
 
         return true;
     }
+
+
 }

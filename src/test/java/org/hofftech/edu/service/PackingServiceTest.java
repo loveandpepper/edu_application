@@ -1,8 +1,8 @@
-package org.hofftech.service;
+package org.hofftech.edu.service;
 
-import org.hofftech.model.Truck;
-import org.hofftech.model.Package;
-import org.hofftech.model.PackageType;
+import org.hofftech.edu.model.Truck;
+import org.hofftech.edu.model.Package;
+import org.hofftech.edu.model.PackageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,26 +19,26 @@ public class PackingServiceTest {
     }
 
     @Test
-    public void testAddPackageSuccess() {
+    public void givenEmptyTruck_whenAddPackage_thenPackageIsAdded() {
         Package pkg = new Package(PackageType.TWO, 1); // Упаковка 2x2
 
         boolean result = packingService.addPackage(truck, pkg);
 
-        assertTrue(result, "Упаковка должна успешно добавиться в пустой грузовик");
+        assertTrue(result, "Упаковка должна успешно добавиться в пустой грузовик.");
     }
 
     @Test
-    public void testAddPackageAtEdge() {
+    public void givenTruckEdgeSpace_whenAddPackage_thenFitsSuccessfully() {
         Package pkg = new Package(PackageType.TWO, 1); // Упаковка 2x2
 
-        // Добавляем упаковку в крайние координаты (максимально правый нижний угол)
-        boolean result = packingService.canAddPackage(truck, pkg, Truck.getWIDTH() - 2, Truck.getHEIGHT() - 2);
+        // Добавляем упаковку на крайние координаты
+        boolean result = packingService.canAddPackage(truck, pkg, truck.getWIDTH() - 2, truck.getHEIGHT() - 2);
 
         assertTrue(result, "Упаковка должна успешно добавляться на край грузовика.");
     }
 
     @Test
-    public void testAddTwoPackagesSideBySide() {
+    public void givenEmptyTruck_whenAddTwoPackagesSideBySide_thenBothFit() {
         Package pkg1 = new Package(PackageType.ONE, 1); // Упаковка 1x1
         Package pkg2 = new Package(PackageType.ONE, 2);
 
@@ -51,5 +51,6 @@ public class PackingServiceTest {
         assertTrue(firstResult, "Первая упаковка должна добавиться.");
         assertTrue(secondResult, "Вторая упаковка должна размещаться рядом с первой.");
     }
+
 }
 

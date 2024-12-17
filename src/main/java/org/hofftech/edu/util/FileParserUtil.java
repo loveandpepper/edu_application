@@ -1,16 +1,14 @@
-package org.hofftech.util;
+package org.hofftech.edu.util;
 
-import org.hofftech.model.PackageType;
-import org.hofftech.model.Package;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.model.PackageType;
+import org.hofftech.edu.model.Package;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class FileParserUtil {
-    private static final Logger log = LoggerFactory.getLogger(FileParserUtil.class);
-
     public List<Package> parsePackages(List<String> lines) {
         List<Package> packages = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
@@ -44,7 +42,7 @@ public class FileParserUtil {
 
     private Package createPackage(List<String> shapeLines, int id) {
         try {
-            PackageType packageType = PackageType.fromShape(shapeLines.toArray(new String[0]));
+            PackageType packageType = PackageType.fromShape(shapeLines);
             return new Package(packageType, id);
         } catch (Exception e) {
             log.error("Ошибка при создании упаковки с ID {}: {}", id, e.getMessage());

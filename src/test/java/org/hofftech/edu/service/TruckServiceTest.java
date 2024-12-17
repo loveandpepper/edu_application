@@ -1,8 +1,8 @@
-package org.hofftech.service;
+package org.hofftech.edu.service;
 
-import org.hofftech.model.Package;
-import org.hofftech.model.Truck;
-import org.hofftech.model.PackageType;
+import org.hofftech.edu.model.Package;
+import org.hofftech.edu.model.Truck;
+import org.hofftech.edu.model.PackageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,8 @@ public class TruckServiceTest {
     }
 
     @Test
-    public void testAddPackagesToMultipleTrucks_Success() {
+    public void givenMultiplePackages_whenAddToTrucks_thenDistributeAcrossTrucks() {
+        // Arrange: Создаём список упаковок
         List<Package> packages = Arrays.asList(
                 new Package(PackageType.TWO, 1),
                 new Package(PackageType.TWO, 2),
@@ -31,23 +32,28 @@ public class TruckServiceTest {
                 new Package(PackageType.SEVEN, 6)
         );
 
+        // Act: Распределяем упаковки по грузовикам
         List<Truck> trucks = truckService.addPackagesToMultipleTrucks(packages);
 
+        // Assert: Проверяем результаты
         assertEquals(2, trucks.size(), "Должно быть два грузовика");
-        assertTrue(trucks.get(0).getPackages().size() > 0, "Первый грузовик должен содержать упаковки");
-        assertTrue(trucks.get(1).getPackages().size() > 0, "Второй грузовик должен содержать упаковку");
+        assertFalse(trucks.get(0).getPackages().isEmpty(), "Первый грузовик должен содержать упаковки");
+        assertFalse(trucks.get(1).getPackages().isEmpty(), "Второй грузовик должен содержать упаковку");
     }
 
     @Test
-    public void testAddPackagesToIndividualTrucks() {
+    public void givenMultiplePackages_whenAddToIndividualTrucks_thenEachInSeparateTruck() {
+        // Arrange: Создаём список упаковок
         List<Package> packages = Arrays.asList(
                 new Package(PackageType.ONE, 1), // 1x1
                 new Package(PackageType.TWO, 2), // 2x2
                 new Package(PackageType.THREE, 3) // 3x2
         );
 
+        // Act: Каждая упаковка отправляется в свой грузовик
         List<Truck> trucks = truckService.addPackagesToIndividualTrucks(packages);
 
+        // Assert: Проверяем, что каждая упаковка в своём грузовике
         assertEquals(3, trucks.size(), "Каждая упаковка должна быть в отдельном грузовике");
         for (Truck truck : trucks) {
             assertEquals(1, truck.getPackages().size(), "Каждый грузовик должен содержать одну упаковку");

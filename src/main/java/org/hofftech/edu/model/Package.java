@@ -1,4 +1,4 @@
-package org.hofftech.model;
+package org.hofftech.edu.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
