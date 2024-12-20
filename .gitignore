@@ -28,6 +28,16 @@ replay_pid*
 *.iml
 out/
 
+# Gradle
+.gradle/
+build/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# Maven
+target/
+*.log
+
 # VS Code
 .vscode/
 
@@ -38,22 +48,18 @@ out/
 .settings/
 bin/
 
-# Gradle
-.gradle/
-build/
-!gradle-wrapper.jar
-# Exclude all .properties files except gradle-wrapper.properties
-*.properties
-!gradle-wrapper.properties
-
-# Maven
-target/
-*.log
-
 # Operating system files
 .DS_Store
 Thumbs.db
 
-# Other
+# Temporary files
 *.swp
 *.tmp
+*.bak
+*.swo
+
+# Generated files
+*.generated
+
+# Other
+*.~*
