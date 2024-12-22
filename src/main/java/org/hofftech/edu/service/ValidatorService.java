@@ -5,8 +5,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageType;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class ValidatorService {
@@ -60,6 +62,31 @@ public class ValidatorService {
         }
 
         return true;
+    }
+
+    public boolean isValidJsonStructure(Map<String, Object> jsonData) {
+        if (!jsonData.containsKey("trucks")) {
+            log.error("Ошибка: JSON не содержит ключ 'trucks'.");
+            return false;
+        }
+
+        List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
+        for (Map<String, Object> truck : trucks) {
+            if (!truck.containsKey("packages")) continue;
+            List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
+            for (Map<String, Object> pkg : packages) {
+                if (!pkg.containsKey("type")) {
+                    log.error("У одной из посылок отсутствует ключ 'type'");
+                    return false;
+                }
+            }
+        }
+        log.info("JSON успешно провалидирован.");
+        return true;
+    }
+
+    public boolean isFileExists(File jsonFile) {
+        return jsonFile.exists();
     }
 
 

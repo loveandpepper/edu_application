@@ -1,56 +1,113 @@
 package org.hofftech.edu.service;
 
-import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.model.Package;
+
 import org.hofftech.edu.model.PackageType;
+import org.hofftech.edu.model.Truck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class PackingServiceTest {
+class PackingServiceTest {
+
     private PackingService packingService;
-    private Truck truck;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         packingService = new PackingService();
-        truck = new Truck();
     }
 
     @Test
-    public void givenEmptyTruck_whenAddPackage_thenPackageIsAdded() {
-        Package pkg = new Package(PackageType.TWO, 1); // Упаковка 2x2
+    void canAddPackage_shouldReturnTrue_whenPackageFits() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg = new Package(PackageType.TWO, 1, null); // Упаковка типа TWO
 
+        // Act
+        boolean result = packingService.canAddPackage(truck, pkg, 0, 0);
+
+        // Assert
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void canAddPackage_shouldReturnFalse_whenPackageExceedsTruckBounds() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg = new Package(PackageType.FOUR, 1, null); // Упаковка слишком большая
+
+        // Act
+        boolean result = packingService.canAddPackage(truck, pkg, 4, 4); // Выходит за границы
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void canAddPackage_shouldReturnFalse_whenPackageOverlaps() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg1 = new Package(PackageType.TWO, 1, null);
+        Package pkg2 = new Package(PackageType.TWO, 2, null);
+
+        // Устанавливаем первую упаковку в грузовик
+        packingService.placePackage(truck, pkg1, 0, 0);
+
+        // Act
+        boolean result = packingService.canAddPackage(truck, pkg2, 0, 0); // Пересекается с первой
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void addPackage_shouldReturnTrue_whenPackageIsAdded() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg = new Package(PackageType.TWO, 1, null);
+
+        // Act
         boolean result = packingService.addPackage(truck, pkg);
 
-        assertTrue(result, "Упаковка должна успешно добавиться в пустой грузовик.");
+        // Assert
+        assertThat(result).isTrue();
+        assertThat(pkg.getPackageStartPosition()).isNotNull();
+        assertThat(truck.getPackages()).contains(pkg);
     }
 
     @Test
-    public void givenTruckEdgeSpace_whenAddPackage_thenFitsSuccessfully() {
-        Package pkg = new Package(PackageType.TWO, 1); // Упаковка 2x2
+    void canAddPackage_shouldReturnFalse_whenPackageCannotBeAddedDueToOverlap() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg1 = new Package(PackageType.SIX, 1, null); // Занимает много места
+        Package pkg2 = new Package(PackageType.SIX, 2, null); // Перекрывает первую упаковку
 
-        // Добавляем упаковку на крайние координаты
-        boolean result = packingService.canAddPackage(truck, pkg, truck.getWIDTH() - 2, truck.getHEIGHT() - 2);
+        // Устанавливаем первую упаковку на место
+        packingService.placePackage(truck, pkg1, 1, 1);
 
-        assertTrue(result, "Упаковка должна успешно добавляться на край грузовика.");
+        // Act
+        boolean result = packingService.canAddPackage(truck, pkg2, 2, 1); // Проверяем пересечение
+
+        // Assert
+        assertThat(result).isFalse();
     }
+
 
     @Test
-    public void givenEmptyTruck_whenAddTwoPackagesSideBySide_thenBothFit() {
-        Package pkg1 = new Package(PackageType.ONE, 1); // Упаковка 1x1
-        Package pkg2 = new Package(PackageType.ONE, 2);
+    void placePackage_shouldCorrectlyPlacePackageOnTruck() {
+        // Arrange
+        Truck truck = new Truck();
+        Package pkg = new Package(PackageType.TWO, 1, null);
 
-        // Добавляем первую упаковку в начало координат
-        boolean firstResult = packingService.addPackage(truck, pkg1);
+        // Act
+        packingService.placePackage(truck, pkg, 1, 1);
 
-        // Добавляем вторую упаковку рядом с первой
-        boolean secondResult = packingService.canAddPackage(truck, pkg2, 1, 0);
-
-        assertTrue(firstResult, "Первая упаковка должна добавиться.");
-        assertTrue(secondResult, "Вторая упаковка должна размещаться рядом с первой.");
+        // Assert
+        assertThat(truck.getGrid()[1][1]).isEqualTo('2'); // Проверяем, что символ упаковки размещен
+        assertThat(pkg.getPackageStartPosition()).isNotNull();
+        assertThat(pkg.getPackageStartPosition().getX()).isEqualTo(1);
+        assertThat(pkg.getPackageStartPosition().getY()).isEqualTo(1);
+        assertThat(truck.getPackages()).contains(pkg);
     }
-
 }
-

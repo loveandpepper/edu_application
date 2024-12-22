@@ -43,7 +43,7 @@ public class FileParserUtil {
     private Package createPackage(List<String> shapeLines, int id) {
         try {
             PackageType packageType = PackageType.fromShape(shapeLines);
-            return new Package(packageType, id);
+            return new Package(packageType, id, null);
         } catch (Exception e) {
             log.error("Ошибка при создании упаковки с ID {}: {}", id, e.getMessage());
             return null;

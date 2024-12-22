@@ -2,7 +2,9 @@ package org.hofftech.edu.model;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,5 +48,16 @@ public enum PackageType {
             throw new IllegalArgumentException("Нет соответствующего PackageType для формы: " + shape);
         }
         return type;
+    }
+
+    public List<String> getShape() {
+        if (SEVEN.equals(this)) {
+            List<String> reversedShape = new ArrayList<>(this.shape);
+            Collections.reverse(reversedShape);
+            return reversedShape;
+        }
+        else {
+            return this.shape;
+        }
     }
 }

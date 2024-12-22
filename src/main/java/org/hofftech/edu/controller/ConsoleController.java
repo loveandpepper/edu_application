@@ -13,7 +13,8 @@ public class ConsoleController {
     public void listen() {
         Scanner scanner = new Scanner(System.in);
         log.info("Ожидание команды пользователя...");
-        System.out.print("Введите import easyalgorithm [путь_к_файлу] или import [путь_к_файлу], " +
+        System.out.print("Введите import easyalgorithm [путь_к_файлу] или import [путь_к_файлу] или " +
+                "save [путь_к_файлу] или importjson [путь_к_файлу] или import even [кол-во грузовиков] [путь_к_файлу]" +
                 "для выхода используйте exit: ");
 
         while (scanner.hasNextLine()) {

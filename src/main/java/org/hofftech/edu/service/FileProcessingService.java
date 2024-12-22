@@ -15,39 +15,61 @@ public class FileProcessingService {
     private final FileParserUtil fileParser;
     private final ValidatorService validatorService;
     private final TruckService truckService;
+    private final JsonProcessingService jsonProcessingService;
 
     public FileProcessingService(FileReaderUtil fileReader, FileParserUtil fileParser,
-                                 ValidatorService validatorService, TruckService truckService) {
+                                 ValidatorService validatorService, TruckService truckService, JsonProcessingService jsonProcessingService) {
         this.fileReader = fileReader;
         this.fileParser = fileParser;
         this.validatorService = validatorService;
         this.truckService = truckService;
+        this.jsonProcessingService = jsonProcessingService;
     }
 
-    public void processFile(Path filePath, boolean useEasyAlgorithm) {
-        try {
-            log.info("Начало обработки файла: {}. Используем простой алгоритм: {}", filePath, useEasyAlgorithm);
+    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean saveToFile, int maxTrucks, boolean lazyAlg) {
+        List<String> lines = readFile(filePath);
+        validateFile(filePath, lines);
+        List<Package> packages = parseFileLines(filePath, lines);
+        validatePackages(packages);
+        List<Truck> trucks = addPackages(useEasyAlgorithm, packages, maxTrucks, lazyAlg);
 
-            List<String> lines = fileReader.readAllLines(filePath);
-            validateFile(filePath, lines);
-            List<Package> packages = parseFileLines(filePath, lines);
-            validatePackages(packages);
-            List<Truck> trucks = addPackages(useEasyAlgorithm, packages);
-
-            log.info("Упаковки распределены по {} грузовикам.", trucks.size());
-            truckService.printTrucks(trucks);
-        } catch (Exception e) {
-            log.error("Произошла ошибка при обработке файла: {}", filePath, e);
+        if (saveToFile) {
+            saveTrucksToFile(trucks);
+        } else {
+            printTrucks(trucks);
         }
     }
 
-    private List<Truck> addPackages(boolean useEasyAlgorithm, List<Package> packages) {
+    private List<String> readFile(Path filePath) {
+        try {
+            return fileReader.readAllLines(filePath);
+        } catch (Exception e) {
+            log.error("Произошла ошибка чтения файла {}", filePath);
+            throw new RuntimeException("Ошибка чтения файла: " + filePath, e);
+        }
+    }
+
+    protected void saveTrucksToFile(List<Truck> trucks) {
+        try {
+            log.info("Сохраняем данные грузовиков в JSON...");
+            jsonProcessingService.saveToJson(trucks);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка сохранения грузовиков в JSON", e);
+        }
+    }
+
+    private void printTrucks(List<Truck> trucks) {
+        truckService.printTrucks(trucks);
+    }
+
+
+    protected List<Truck> addPackages(boolean useEasyAlgorithm, List<Package> packages, int maxTrucks, Boolean lazyAlg) {
         // Распределение упаковок по грузовикам
         List<Truck> trucks;
         if (useEasyAlgorithm) {
             trucks = truckService.addPackagesToIndividualTrucks(packages);
         } else {
-            trucks = truckService.addPackagesToMultipleTrucks(packages);
+            trucks = truckService.addPackagesToMultipleTrucks(packages, maxTrucks, lazyAlg);
         }
         return trucks;
     }
@@ -60,7 +82,7 @@ public class FileProcessingService {
         log.info("Все упаковки успешно прошли валидацию.");
     }
 
-    private List<Package> parseFileLines(Path filePath, List<String> lines) {
+    protected List<Package> parseFileLines(Path filePath, List<String> lines) {
         // Парсинг строк в упаковки
         List<Package> packages = fileParser.parsePackages(lines);
         if (packages.isEmpty()) {
@@ -70,10 +92,11 @@ public class FileProcessingService {
         return packages;
     }
 
-    private void validateFile(Path filePath, List<String> lines) {
+    protected void validateFile(Path filePath, List<String> lines) {
         // Валидация файла
         if (!validatorService.isValidFile(lines)) {
-            log.warn("Файл не прошел валидацию: {}", filePath);
+            log.error("Файл не прошел валидацию");
+            throw new RuntimeException("Файл не прошел валидацию: " + filePath);
         }
         log.info("Файл успешно прошел валидацию.");
     }
