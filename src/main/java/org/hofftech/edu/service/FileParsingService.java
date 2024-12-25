@@ -1,4 +1,4 @@
-package org.hofftech.edu.util;
+package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.model.PackageType;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class FileParserUtil {
+public class FileParsingService {
     public List<Package> parsePackages(List<String> lines) {
         List<Package> packages = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
@@ -28,7 +28,6 @@ public class FileParserUtil {
             }
         }
 
-        // Обработка последней упаковки
         if (!currentShape.isEmpty()) {
             Package pkg = createPackage(currentShape, packageId++);
             if (pkg != null) {

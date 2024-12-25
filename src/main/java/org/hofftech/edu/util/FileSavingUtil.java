@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public class FileSavingUtil {
+public final class FileSavingUtil {
     public static void savePackagesToFile(List<String> packages, String outputFilePath) throws IOException {
         File outputFile = new File(outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {

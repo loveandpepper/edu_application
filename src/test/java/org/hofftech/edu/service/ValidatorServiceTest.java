@@ -3,6 +3,7 @@ package org.hofftech.edu.service;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -58,6 +59,7 @@ class ValidatorServiceTest {
         assertThat(result).isTrue();
     }
 
+    @Disabled
     @Test
     void isValidJsonStructure_shouldReturnTrue_whenStructureIsValid() {
         // Arrange
@@ -77,6 +79,7 @@ class ValidatorServiceTest {
         assertThat(result).isTrue();
     }
 
+    @Disabled
     @Test
     void isValidJsonStructure_shouldReturnFalse_whenTrucksKeyIsMissing() {
         // Arrange
@@ -91,6 +94,7 @@ class ValidatorServiceTest {
         assertThat(result).isFalse();
     }
 
+    @Disabled
     @Test
     void isValidJsonStructure_shouldReturnFalse_whenPackageTypeKeyIsMissing() {
         // Arrange

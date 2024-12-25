@@ -41,7 +41,7 @@ public class PackingService {
         int height = shape.size();
 
             for (int startY = 0; startY <= truck.getHEIGHT() - height; startY++) {
-                for (int startX = 0; startX <= truck.getWIDTH() - shape.getFirst().length(); startX++) { // Слева направо
+                for (int startX = 0; startX <= truck.getWIDTH() - shape.getFirst().length(); startX++) {
                     if (canAddPackage(truck, pkg, startX, startY)) {
                         log.info("Упаковка {} успешно добавлена", pkg.getType());
                         pkg.setPackageStartPosition(new PackageStartPosition(startX, startY));

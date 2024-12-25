@@ -3,6 +3,8 @@ package org.hofftech.edu.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.handler.CommandHandler;
+import org.hofftech.edu.handler.ConsoleCommandHandler;
+
 import java.util.Scanner;
 
 @Slf4j

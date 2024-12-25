@@ -5,7 +5,7 @@ import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.PackageType;
 import org.hofftech.edu.model.Truck;
-import org.hofftech.edu.util.FileParserUtil;
+import org.hofftech.edu.service.filesaving.FileSavingAlgorithmFactory;
 import org.hofftech.edu.util.FileReaderUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,23 +27,22 @@ import static org.mockito.Mockito.eq;
 
 class FileProcessingServiceTest {
 
-    private FileReaderUtil fileReader;
-    private FileParserUtil fileParser;
+    private FileParsingService fileParser;
     private ValidatorService validatorService;
     private TruckService truckService;
     private JsonProcessingService jsonProcessingService;
     private FileProcessingService fileProcessingService;
+    private FileSavingAlgorithmFactory fileSavingAlgorithmFactory;
 
     @BeforeEach
     void setUp() {
-        fileReader = mock(FileReaderUtil.class);
-        fileParser = mock(FileParserUtil.class);
+        fileParser = mock(FileParsingService.class);
         validatorService = mock(ValidatorService.class);
         truckService = mock(TruckService.class);
         jsonProcessingService = mock(JsonProcessingService.class);
 
         fileProcessingService = new FileProcessingService(
-                fileReader, fileParser, validatorService, truckService, jsonProcessingService
+                fileParser, validatorService, truckService, fileSavingAlgorithmFactory
         );
     }
 
@@ -58,7 +57,7 @@ class FileProcessingServiceTest {
         Truck truck = new Truck();
         List<Truck> trucks = List.of(truck);
 
-        when(fileReader.readAllLines(filePath)).thenReturn(fileLines);
+        when(FileReaderUtil.readAllLines(filePath)).thenReturn(fileLines);
         when(validatorService.isValidFile(fileLines)).thenReturn(true);
         when(fileParser.parsePackages(fileLines)).thenReturn(packages);
         when(validatorService.isValidPackages(packages)).thenReturn(true);
@@ -68,7 +67,7 @@ class FileProcessingServiceTest {
         fileProcessingService.processFile(filePath, false, true, 10, false);
 
         // Assert
-        verify(fileReader).readAllLines(filePath);
+        verify (FileReaderUtil.readAllLines(filePath));
         verify(validatorService).isValidFile(fileLines);
         verify(fileParser).parsePackages(fileLines);
         verify(validatorService).isValidPackages(packages);
@@ -115,13 +114,13 @@ class FileProcessingServiceTest {
     }
 
     @Test
-    void saveTrucksToFile_shouldCallJsonProcessingService() {
+    void saveTrucksToJson_shouldCallJsonProcessingService() {
         // Arrange
         Truck truck = new Truck();
         List<Truck> trucks = List.of(truck);
 
         // Act
-        fileProcessingService.saveTrucksToFile(trucks);
+        fileProcessingService.saveTrucksToJson(trucks);
 
         // Assert
         verify(jsonProcessingService).saveToJson(trucks);

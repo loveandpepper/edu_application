@@ -1,17 +1,18 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.model.PackageDto;
 import org.hofftech.edu.model.PackageType;
 import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hofftech.edu.model.TruckDto;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,53 +29,32 @@ public class JsonProcessingService {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public void saveToJson(List<Truck> trucks) {
+    public String saveToJson(List<Truck> trucks) {
         File outputDir = new File(OUTPUT_DIRECTORY);
-        if (!outputDir.exists()) {
-            boolean dirCreated = outputDir.mkdirs();
-            if (!dirCreated) {
-                log.error("Не удалось создать папку для вывода Json");
-                return;
-            }
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            log.error("Не удалось создать папку для файла Json");
+            throw new RuntimeException("Не удалось создать папку для файла Json");
         }
 
         File outputFile = new File(outputDir, FILE_NAME);
 
-        List<Map<String, Object>> trucksData = new ArrayList<>();
-        for (Truck truck : trucks) {
-            Map<String, Object> truckMap = new LinkedHashMap<>(); //Linked чтобы вывод в json был по порядку
-            truckMap.put("truck_id", trucks.indexOf(truck) + 1);
-
-            List<Map<String, Object>> packagesData = new ArrayList<>();
-            for (Package pkg : truck.getPackages()) {
-                Map<String, Object> packageMap = new LinkedHashMap<>();
-                packageMap.put("id", pkg.getId());
-                packageMap.put("type", pkg.getType().name());
-
-                PackageStartPosition position = pkg.getPackageStartPosition();
-                if (position != null) {
-                    Map<String, Object> positionMap = new LinkedHashMap<>();
-                    positionMap.put("x", position.getX() + 1);
-                    positionMap.put("y", position.getY() + 1);
-                    packageMap.put("position", positionMap);
-                } else {
-                    log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
-                }
-
-                packagesData.add(packageMap);
-            }
-
-            truckMap.put("packages", packagesData);
-            trucksData.add(truckMap);
+        List<TruckDto> trucksData = new ArrayList<>();
+        for (int i = 0; i < trucks.size(); i++) {
+            trucksData.add(convertToTruckDto(trucks.get(i), i));
         }
 
         try {
+            String jsonString = objectMapper.writeValueAsString(Map.of("trucks", trucksData));
             objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
+            return jsonString;
         } catch (IOException e) {
-            log.error("Ошибка при записи JSON файла: {}", e.getMessage());
+            log.error("Ошибка при записи JSON: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
     }
+
+
 
     public List<String> importJson(String jsonFilePath) throws IOException {
         File jsonFile = new File(jsonFilePath);
@@ -82,24 +62,61 @@ public class JsonProcessingService {
             log.error("Файл не найден: {}", jsonFile.getAbsolutePath());
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
-        Map<String, Object> jsonData = objectMapper.readValue(jsonFile, Map.class);
+
+        Map<String, List<TruckDto>> jsonData = objectMapper.readValue(jsonFile, Map.class);
 
         if (!validatorService.isValidJsonStructure(jsonData)) {
-            log.error("Структура Json некорректа!");
-            throw new IOException("Структура Json некорректа!");
+            log.error("Структура Json некорректна!");
+            throw new IOException("Структура Json некорректна!");
         }
 
         List<String> packagesOutput = new ArrayList<>();
-        List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
-        for (Map<String, Object> truck : trucks) {
-            List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
-            for (Map<String, Object> pkg : packages) {
-                String type = (String) pkg.get("type");
-                List<String> shape = PackageType.valueOf(type).getShape();
-                packagesOutput.addAll(shape);
-                packagesOutput.add("");
-            }
+        List<TruckDto> trucks = jsonData.get("trucks");
+        for (TruckDto truck : trucks) {
+            getPackagesShapeFromTruck(truck, packagesOutput);
         }
         return packagesOutput;
     }
+
+    private static void getPackagesShapeFromTruck(TruckDto truck, List<String> packagesOutput) {
+        for (PackageDto pkg : truck.getPackages()) {
+            String type = pkg.getType();
+            List<String> shape = PackageType.valueOf(type).getShape();
+            packagesOutput.addAll(shape);
+            packagesOutput.add("");
+        }
+    }
+
+
+    private TruckDto convertToTruckDto(Truck truck, int truckIndex) {
+        TruckDto truckDto = new TruckDto();
+        truckDto.setTruckId(truckIndex + 1);
+
+        List<PackageDto> packageDtos = new ArrayList<>();
+        for (Package pkg : truck.getPackages()) {
+            packageDtos.add(convertToPackageDto(pkg));
+        }
+        truckDto.setPackages(packageDtos);
+
+        return truckDto;
+    }
+
+    private PackageDto convertToPackageDto(Package pkg) {
+        PackageDto packageDto = new PackageDto();
+        packageDto.setId(pkg.getId());
+        packageDto.setType(pkg.getType().name());
+
+        PackageStartPosition position = pkg.getPackageStartPosition();
+        if (position != null) {
+            PackageDto.PositionDto positionDto = new PackageDto.PositionDto();
+            positionDto.setX(position.getX() + 1);
+            positionDto.setY(position.getY() + 1);
+            packageDto.setPosition(positionDto);
+        } else {
+            log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
+        }
+
+        return packageDto;
+    }
+
 }

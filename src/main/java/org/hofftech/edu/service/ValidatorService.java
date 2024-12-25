@@ -1,9 +1,13 @@
 package org.hofftech.edu.service;
 
+import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hofftech.edu.model.Package;
+import org.hofftech.edu.model.PackageDto;
 import org.hofftech.edu.model.PackageType;
+import org.hofftech.edu.model.TruckDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,14 +48,12 @@ public class ValidatorService {
         PackageType type = pkg.getType();
         List<String> shape = type.getShape();
 
-        // Проверяем, что форма упаковки не имеет "выпадающих" символов
         int maxWidth = 0;
         for (String row : shape) {
             maxWidth = Math.max(maxWidth, row.length());
         }
 
         for (String row : shape) {
-            // Если в строке справа от длины строки есть символы, это ошибка
             if (row.length() < maxWidth) {
                 for (int x = row.length(); x < maxWidth; x++) {
                     if (row.length() > x) {
@@ -64,26 +66,41 @@ public class ValidatorService {
         return true;
     }
 
-    public boolean isValidJsonStructure(Map<String, Object> jsonData) {
+    public boolean isValidJsonStructure(Map<String, List<TruckDto>> jsonData) {
         if (!jsonData.containsKey("trucks")) {
             log.error("Ошибка: JSON не содержит ключ 'trucks'.");
             return false;
         }
 
-        List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
-        for (Map<String, Object> truck : trucks) {
-            if (!truck.containsKey("packages")) continue;
-            List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
-            for (Map<String, Object> pkg : packages) {
-                if (!pkg.containsKey("type")) {
-                    log.error("У одной из посылок отсутствует ключ 'type'");
+        ObjectMapper objectMapper = new ObjectMapper();
+        CollectionType truckListType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, TruckDto.class);
+
+        try {
+            List<TruckDto> trucks = objectMapper.convertValue(jsonData.get("trucks"), truckListType);
+
+            for (TruckDto truck : trucks) {
+                if (truck.getPackages() == null || truck.getPackages().isEmpty()) {
+                    log.error("Ошибка: У грузовика ID {} отсутствуют упаковки.", truck.getTruckId());
                     return false;
                 }
+
+                for (PackageDto pkg : truck.getPackages()) {
+                    if (pkg.getType() == null || pkg.getType().isBlank()) {
+                        log.error("Ошибка: У одной из посылок отсутствует тип.");
+                        return false;
+                    }
+                }
             }
+
+            log.info("JSON успешно провалидирован.");
+            return true;
+        } catch (Exception e) {
+            log.error("Ошибка при валидации структуры JSON: {}", e.getMessage());
+            return false;
         }
-        log.info("JSON успешно провалидирован.");
-        return true;
     }
+
 
     public boolean isFileExists(File jsonFile) {
         return jsonFile.exists();

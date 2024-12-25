@@ -9,20 +9,34 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    versions = [
+            commonsCollections: '4.4',
+            jackson: '2.15.2',
+            lombok: '1.18.30',
+            logback: '1.4.12',
+            slf4j: '2.0.9',
+            junitBom: '5.10.0',
+            assertj: '3.23.1',
+            mockito: '5.5.0'
+    ]
+}
+
 dependencies {
-    implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation "org.apache.commons:commons-collections4:${versions.commonsCollections}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
+    implementation "ch.qos.logback:logback-classic:${versions.logback}"
+    implementation "org.slf4j:slf4j-api:${versions.slf4j}"
+
+    compileOnly "org.projectlombok:lombok:${versions.lombok}"
+    annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+
+    testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
+    testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+    testImplementation platform("org.junit:junit-bom:${versions.junitBom}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-    testCompileOnly 'org.projectlombok:lombok:1.18.30'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-    implementation 'ch.qos.logback:logback-classic:1.4.12'
-    implementation 'org.slf4j:slf4j-api:2.0.9'
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.assertj:assertj-core:3.23.1'
-    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation "org.assertj:assertj-core:${versions.assertj}"
+    testImplementation "org.mockito:mockito-core:${versions.mockito}"
 }
 
 test {
