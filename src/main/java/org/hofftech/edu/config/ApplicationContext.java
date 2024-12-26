@@ -2,7 +2,7 @@ package org.hofftech.edu.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.controller.CommandProcessorFactory;
+import org.hofftech.edu.service.processor.command.CommandProcessorFactory;
 import org.hofftech.edu.controller.ConsoleController;
 import org.hofftech.edu.handler.ConsoleCommandHandler;
 import org.hofftech.edu.service.*;

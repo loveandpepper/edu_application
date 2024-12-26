@@ -1,7 +1,7 @@
-package org.hofftech.edu.controller.processor;
+package org.hofftech.edu.service.processor.command;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.controller.CommandProcessor;
+import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.FileProcessingService;
 
 import java.nio.file.Path;
@@ -16,7 +16,28 @@ public abstract class BaseFileCommandProcessor implements CommandProcessor {
     }
 
     @Override
-    public void process(String command) {
+    public void execute(String command) {
+        ParsedCommand parsedCommand = parseCommand(command);
+
+        try {
+            log.info("Обрабатываем файл: {}. Алгоритм: {}, равномерно: {}, команда: {}.",
+                    parsedCommand.getFilePath(),
+                    parsedCommand.isUseEasyAlgorithm() ? "easyalgorithm" : "multipletrucksalgorithm",
+                    parsedCommand.isUseEvenAlgorithm(),
+                    getCommandPrefix());
+
+            Path filePath = Path.of(parsedCommand.getFilePath());
+            processFile(filePath, parsedCommand.isUseEasyAlgorithm(), parsedCommand.getMaxTrucks(),
+                    parsedCommand.isUseEvenAlgorithm());
+
+            log.info("Команда {} выполнена", getCommandPrefix());
+        } catch (Exception e) {
+            log.error("Ошибка при выполнении команды: {}", e.getMessage(), e);
+        }
+    }
+
+
+    private ParsedCommand parseCommand(String command) {
         boolean useEasyAlgorithm = command.contains("easyalgorithm");
         boolean useEvenAlgorithm = command.contains("even");
         if (useEvenAlgorithm){
@@ -39,16 +60,9 @@ public abstract class BaseFileCommandProcessor implements CommandProcessor {
             }
         }
 
-        try {
-            log.info("Обрабатываем файл: {}. Алгоритм: {}, равномерно: {}, команда: {}",
-                    filePath, useEasyAlgorithm ? "easyalgorithm" : "multipletrucksalgorithm", useEvenAlgorithm, getCommandPrefix());
-            Path path = Path.of(filePath);
-            processFile(path, useEasyAlgorithm, maxTrucks, useEvenAlgorithm);
-            log.info("Команда {} выполнена", getCommandPrefix());
-        } catch (Exception e) {
-            log.error("Ошибка при выполнении команды: {}", e.getMessage(), e);
-        }
+        return new ParsedCommand(filePath, maxTrucks, useEasyAlgorithm, useEvenAlgorithm);
     }
+
 
     protected abstract String getCommandPrefix();
 

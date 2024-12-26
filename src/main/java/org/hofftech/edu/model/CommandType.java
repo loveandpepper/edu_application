@@ -1,18 +1,18 @@
-package org.hofftech.edu.controller.type;
+package org.hofftech.edu.model;
 
+import lombok.Getter;
+
+@Getter
 public enum CommandType {
     IMPORT("import"),
     SAVE("save"),
-    IMPORT_JSON("importjson");
+    IMPORT_JSON("importjson"),
+    EXIT("exit");
 
     private final String prefix;
 
     CommandType(String prefix) {
         this.prefix = prefix;
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 
     public static CommandType fromCommand(String command) {
@@ -21,6 +21,6 @@ public enum CommandType {
                 return type;
             }
         }
-        return null; // Можно заменить на Optional или выбросить Exception
+        throw new IllegalArgumentException("Unknown command type: " + command);
     }
 }

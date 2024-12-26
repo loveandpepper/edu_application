@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.PackageDto;
+import org.hofftech.edu.model.dto.PackageDto;
 import org.hofftech.edu.model.PackageType;
-import org.hofftech.edu.model.TruckDto;
+import org.hofftech.edu.model.dto.TruckDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;

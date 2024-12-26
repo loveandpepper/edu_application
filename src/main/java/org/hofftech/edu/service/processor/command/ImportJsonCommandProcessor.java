@@ -1,7 +1,6 @@
-package org.hofftech.edu.controller.processor;
+package org.hofftech.edu.service.processor.command;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.controller.CommandProcessor;
 import org.hofftech.edu.service.JsonProcessingService;
 import org.hofftech.edu.util.FileSavingUtil;
 
@@ -18,7 +17,7 @@ public class ImportJsonCommandProcessor implements CommandProcessor {
     }
 
     @Override
-    public void process(String command) {
+    public void execute(String command) {
         String jsonFilePath = command.replace("importjson ", "").trim();
         try {
             List<String> packageTypes = jsonProcessingService.importJson(jsonFilePath);

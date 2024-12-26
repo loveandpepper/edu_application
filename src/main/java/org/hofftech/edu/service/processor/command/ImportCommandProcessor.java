@@ -1,4 +1,4 @@
-package org.hofftech.edu.controller.processor;
+package org.hofftech.edu.service.processor.command;
 
 import org.hofftech.edu.service.FileProcessingService;
 
@@ -16,7 +16,7 @@ public class ImportCommandProcessor extends BaseFileCommandProcessor {
     }
 
     @Override
-    protected void processFile(Path path, boolean useEasyAlgorithm, int maxTrucks, boolean useEvenAlgorithm) throws Exception {
+    protected void processFile(Path path, boolean useEasyAlgorithm, int maxTrucks, boolean useEvenAlgorithm) {
         fileProcessingService.processFile(path, useEasyAlgorithm, false, maxTrucks, useEvenAlgorithm);
     }
 }

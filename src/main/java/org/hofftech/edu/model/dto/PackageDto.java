@@ -1,4 +1,4 @@
-package org.hofftech.edu.model;
+package org.hofftech.edu.model.dto;
 
 import lombok.Data;
 

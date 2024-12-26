@@ -1,14 +1,14 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.model.PackageDto;
+import org.hofftech.edu.model.dto.PackageDto;
 import org.hofftech.edu.model.PackageType;
 import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.hofftech.edu.model.TruckDto;
+import org.hofftech.edu.model.dto.TruckDto;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,14 +30,7 @@ public class JsonProcessingService {
     }
 
     public String saveToJson(List<Truck> trucks) {
-        File outputDir = new File(OUTPUT_DIRECTORY);
-        if (!outputDir.exists() && !outputDir.mkdirs()) {
-            log.error("Не удалось создать папку для файла Json");
-            throw new RuntimeException("Не удалось создать папку для файла Json");
-        }
-
-        File outputFile = new File(outputDir, FILE_NAME);
-
+        File outputFile = createFile();
         List<TruckDto> trucksData = new ArrayList<>();
         for (int i = 0; i < trucks.size(); i++) {
             trucksData.add(convertToTruckDto(trucks.get(i), i));
@@ -54,6 +47,16 @@ public class JsonProcessingService {
         }
     }
 
+    private static File createFile() {
+        File outputDir = new File(OUTPUT_DIRECTORY);
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            log.error("Не удалось создать папку для файла Json");
+            throw new RuntimeException("Не удалось создать папку для файла Json");
+        }
+
+        File outputFile = new File(outputDir, FILE_NAME);
+        return outputFile;
+    }
 
 
     public List<String> importJson(String jsonFilePath) throws IOException {
