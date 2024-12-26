@@ -1,5 +1,6 @@
 package org.hofftech.edu.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.model.dto.PackageDto;
 import org.hofftech.edu.model.PackageType;
@@ -66,7 +67,11 @@ public class JsonProcessingService {
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
 
-        Map<String, List<TruckDto>> jsonData = objectMapper.readValue(jsonFile, Map.class);
+        Map<String, List<TruckDto>> jsonData = objectMapper.readValue(
+                jsonFile,
+                new TypeReference<>() {
+                }
+        );
 
         if (!validatorService.isValidJsonStructure(jsonData)) {
             log.error("Структура Json некорректна!");

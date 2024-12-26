@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum CommandType {
+    IMPORT_JSON("importjson"),
     IMPORT("import"),
     SAVE("save"),
-    IMPORT_JSON("importjson"),
     EXIT("exit");
 
     private final String prefix;
