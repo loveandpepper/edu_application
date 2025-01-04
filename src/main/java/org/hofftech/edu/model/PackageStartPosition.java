@@ -9,8 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class Package {
-    private final PackageType type;
-    private final int id;
-    private PackageStartPosition packageStartPosition;
+public class PackageStartPosition {
+    int x;
+    int y;
 }
