@@ -4,23 +4,22 @@ import lombok.Getter;
 
 @Getter
 public enum CommandType {
-    IMPORT_JSON("importjson"),
-    IMPORT("import"),
-    SAVE("save"),
-    EXIT("exit");
-
-    private final String prefix;
-
-    CommandType(String prefix) {
-        this.prefix = prefix;
-    }
+    IMPORT_JSON,
+    SAVE,
+    IMPORT,
+    EXIT;
 
     public static CommandType fromCommand(String command) {
-        for (CommandType type : values()) {
-            if (command.startsWith(type.getPrefix())) {
-                return type;
-            }
+        if (command.contains("importjson")) {
+            return IMPORT_JSON;
+        } else if (command.contains("save")) {
+            return SAVE;
+        } else if (command.contains("file")) {
+            return IMPORT;
+        } else if (command.startsWith("exit")) {
+            return EXIT;
+        } else {
+            throw new IllegalArgumentException("Неизвестный тип команды: " + command);
         }
-        throw new IllegalArgumentException("Unknown command type: " + command);
     }
 }

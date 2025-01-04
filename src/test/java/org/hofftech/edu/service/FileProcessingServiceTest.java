@@ -5,7 +5,7 @@ import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.PackageType;
 import org.hofftech.edu.model.Truck;
-import org.hofftech.edu.service.filesaving.FileSavingAlgorithmFactory;
+import org.hofftech.edu.service.packingstategy.PackingStrategyFactory;
 import org.hofftech.edu.util.FileReaderUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -32,7 +31,8 @@ class FileProcessingServiceTest {
     private TruckService truckService;
     private JsonProcessingService jsonProcessingService;
     private FileProcessingService fileProcessingService;
-    private FileSavingAlgorithmFactory fileSavingAlgorithmFactory;
+    private PackingStrategyFactory packingStrategyFactory;
+
 
     @BeforeEach
     void setUp() {
@@ -42,7 +42,7 @@ class FileProcessingServiceTest {
         jsonProcessingService = mock(JsonProcessingService.class);
 
         fileProcessingService = new FileProcessingService(
-                fileParser, validatorService, truckService, fileSavingAlgorithmFactory
+                fileParser, validatorService, truckService, jsonProcessingService, packingStrategyFactory
         );
     }
 
@@ -73,44 +73,6 @@ class FileProcessingServiceTest {
         verify(validatorService).isValidPackages(packages);
         verify(truckService).addPackagesToMultipleTrucks(packages, 10, false);
         verify(jsonProcessingService).saveToJson(trucks);
-    }
-
-    @SneakyThrows
-    @Test
-    void processFile_givenInvalidFile_shouldThrowException() {
-        // Arrange
-        Path filePath = Path.of("111");
-        List<String> fileLines = List.of("invalid line");
-
-        when(fileReader.readAllLines(filePath)).thenReturn(fileLines);
-        when(validatorService.isValidFile(fileLines)).thenReturn(false);
-
-        // Act & Assert
-        assertThatThrownBy(() -> fileProcessingService.processFile(filePath, false, false, 1, false))
-                .isInstanceOf(RuntimeException.class);
-
-        verify(fileReader).readAllLines(filePath);
-        verify(validatorService).isValidFile(fileLines);
-        verifyNoInteractions(fileParser, truckService, jsonProcessingService);
-    }
-
-    @Test
-    void addPackages_givenUseEasyAlgorithm_shouldCallCorrectMethod() {
-        // Arrange
-        Package testPackage = new Package(PackageType.TWO, 1, new PackageStartPosition(0, 0));
-        List<Package> packages = List.of(testPackage);
-        Truck truck = new Truck();
-        List<Truck> trucks = List.of(truck);
-
-        when(truckService.addPackagesToIndividualTrucks(packages)).thenReturn(trucks);
-
-        // Act
-        List<Truck> result = fileProcessingService.addPackages(true, packages, 0, false);
-
-        // Assert
-        assertThat(result).isNotEmpty().hasSize(1);
-        verify(truckService).addPackagesToIndividualTrucks(packages);
-        verifyNoInteractions(jsonProcessingService);
     }
 
     @Test

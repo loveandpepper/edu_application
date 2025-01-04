@@ -26,8 +26,14 @@ public class TruckService {
             placePackages(packageList, trucks, maxTrucks);
         }
         else {
-            trucks = createTruck(maxTrucks);
-            distributePackagesEvenly(packageList, trucks);
+            if (maxTrucks > 0 && maxTrucks != Integer.MAX_VALUE) {
+                trucks = createTruck(maxTrucks);
+                distributePackagesEvenly(packageList, trucks);
+            }
+            else {
+                log.error("Если используется равномерный алгоритм, то необходимо указать кол-во грузовиков!");
+                throw new IllegalArgumentException("Не указано количество грузовиков");
+            }
         }
 
         log.info("Размещение завершено. Всего грузовиков: {}", trucks.size());

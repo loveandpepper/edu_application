@@ -2,12 +2,13 @@ package org.hofftech.edu.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.service.processor.command.CommandProcessorFactory;
+import org.hofftech.edu.service.CommandParser;
+import org.hofftech.edu.service.commandprocessor.CommandProcessorFactory;
 import org.hofftech.edu.controller.ConsoleController;
 import org.hofftech.edu.handler.ConsoleCommandHandler;
 import org.hofftech.edu.service.*;
 import org.hofftech.edu.service.FileParsingService;
-import org.hofftech.edu.service.filesaving.FileSavingAlgorithmFactory;
+import org.hofftech.edu.service.packingstategy.PackingStrategyFactory;
 
 @Slf4j
 @Getter
@@ -16,22 +17,23 @@ public class ApplicationContext {
 
     public ApplicationContext() {
         log.info("Создаем зависимости...");
+
         PackingService packingService = new PackingService();
         TruckService truckService = new TruckService(packingService);
         ValidatorService validatorService = new ValidatorService();
         CommandProcessorFactory processorFactory = getCommandProcessorFactory(validatorService, truckService);
-        ConsoleCommandHandler consoleCommandHandler = new ConsoleCommandHandler(processorFactory);
+        CommandParser commandParser = new CommandParser();
 
-        this.consoleController = new ConsoleController(consoleCommandHandler);
+        ConsoleCommandHandler consoleHandler = new ConsoleCommandHandler(processorFactory, commandParser);
+        this.consoleController = new ConsoleController(consoleHandler);
     }
 
     private static CommandProcessorFactory getCommandProcessorFactory(ValidatorService validatorService, TruckService truckService) {
         FileParsingService fileParser = new FileParsingService();
+        PackingStrategyFactory packingStrategyFactory = new PackingStrategyFactory(truckService);
         JsonProcessingService jsonProcessingService = new JsonProcessingService(validatorService);
-        FileSavingAlgorithmFactory fileSavingAlgorithmFactory = new FileSavingAlgorithmFactory(jsonProcessingService);
-        FileProcessingService fileProcessingService =
-                new FileProcessingService(fileParser, validatorService, truckService, fileSavingAlgorithmFactory);
+        FileProcessingService fileProcessingService = new FileProcessingService(fileParser, validatorService, truckService, jsonProcessingService, packingStrategyFactory);
         return new CommandProcessorFactory(jsonProcessingService, fileProcessingService);
     }
-
 }
+

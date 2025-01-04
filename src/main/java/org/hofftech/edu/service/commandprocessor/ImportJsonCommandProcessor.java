@@ -1,6 +1,7 @@
-package org.hofftech.edu.service.processor.command;
+package org.hofftech.edu.service.commandprocessor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.JsonProcessingService;
 import org.hofftech.edu.util.FileSavingUtil;
 
@@ -17,11 +18,20 @@ public class ImportJsonCommandProcessor implements CommandProcessor {
     }
 
     @Override
-    public void execute(String command) {
-        String jsonFilePath = command.replace("importjson ", "").trim();
+    public void execute(ParsedCommand command) {
+        String jsonFilePath = command.getFilePath();
+        if (jsonFilePath == null || jsonFilePath.isEmpty()) {
+            log.error("Путь к JSON-файлу не указан.");
+            return;
+        }
+
         try {
+            log.info("Импортируем данные из JSON");
             List<String> packageTypes = jsonProcessingService.importJson(jsonFilePath);
+
+            log.info("Сохраняем данные в файл");
             FileSavingUtil.savePackagesToFile(packageTypes, OUTPUT_FILE_PATH);
+
             log.info("Файл успешно импортирован из JSON: {}", jsonFilePath);
         } catch (IOException e) {
             log.error("Ошибка при обработке команды importjson: {}", e.getMessage(), e);
