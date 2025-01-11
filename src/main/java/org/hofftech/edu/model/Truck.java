@@ -6,20 +6,27 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс, представляющий грузовик.
+ * Содержит информацию о вместимости, текущей загрузке и других свойствах.
+ */
 @Getter
 @ToString
 public class Truck {
-    private final int WIDTH = 6;
-    private final int HEIGHT = 6;
+    private final int width;
+    private final int height;
 
-    private char[][] grid;
+    private final char[][] grid;
     private final List<Package> packages;
 
-    public Truck() {
-        this.grid = new char[HEIGHT][WIDTH];
+    public Truck(int width, int height) {
+        this.width = width;
+        this.height = height;
+        this.grid = new char[height][width];
         this.packages = new ArrayList<>();
-        for (int i = 0; i < HEIGHT; i++) {
-            for (int j = 0; j < WIDTH; j++) {
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 grid[i][j] = ' ';
             }
         }

@@ -2,24 +2,33 @@ package org.hofftech.edu.model;
 
 import lombok.Getter;
 
+/**
+ * Перечисление доступных типов команд.
+ * Определяет список возможных команд для обработки в приложении.
+ */
 @Getter
 public enum CommandType {
-    IMPORT_JSON,
-    SAVE,
-    IMPORT,
-    EXIT;
+    START,
+    EXIT,
+    CREATE,
+    FIND,
+    UPDATE,
+    DELETE,
+    LIST,
+    LOAD,
+    UNLOAD;
 
     public static CommandType fromCommand(String command) {
-        if (command.contains("importjson")) {
-            return IMPORT_JSON;
-        } else if (command.contains("save")) {
-            return SAVE;
-        } else if (command.contains("file")) {
-            return IMPORT;
-        } else if (command.startsWith("exit")) {
-            return EXIT;
-        } else {
-            throw new IllegalArgumentException("Неизвестный тип команды: " + command);
-        }
+        if (command.startsWith("/start")) return START;
+        if (command.startsWith("exit")) return EXIT;
+        if (command.startsWith("create")) return CREATE;
+        if (command.startsWith("find")) return FIND;
+        if (command.startsWith("update")) return UPDATE;
+        if (command.startsWith("delete")) return DELETE;
+        if (command.startsWith("list")) return LIST;
+        if (command.startsWith("load")) return LOAD;
+        if (command.startsWith("unload")) return UNLOAD;
+        throw new IllegalArgumentException("Неизвестная команда: " + command);
     }
 }
+

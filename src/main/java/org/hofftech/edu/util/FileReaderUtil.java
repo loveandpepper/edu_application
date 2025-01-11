@@ -7,8 +7,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Утилитный класс для чтения строк из файлов.
+ * Предоставляет методы для безопасного чтения данных.
+ */
 @Slf4j
 public final class FileReaderUtil {
+    /**
+     * Читает все строки из указанного файла.
+     *
+     * @param filePath путь к файлу
+     * @return список строк, содержащихся в файле
+     * @throws RuntimeException если файл не существует или недоступен для чтения
+     */
     public static List<String> readAllLines(Path filePath) {
         try {
             if (!Files.exists(filePath)) {

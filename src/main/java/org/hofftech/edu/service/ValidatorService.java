@@ -1,21 +1,22 @@
 package org.hofftech.edu.service;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.dto.PackageDto;
-import org.hofftech.edu.model.PackageType;
-import org.hofftech.edu.model.dto.TruckDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Сервис для валидации данных.
+ * Отвечает за проверку файлов, форм посылок и других данных.
+ */
 @Slf4j
 public class ValidatorService {
+    /**
+     * Проверяет, содержит ли файл допустимые данные.
+     *
+     * @param lines список строк из файла
+     * @return true, если файл валиден, иначе false
+     */
     public boolean isValidFile(List<String> lines) {
         if (CollectionUtils.isEmpty(lines)) {
             log.error("Файл пустой или не содержит данных.");
@@ -25,86 +26,53 @@ public class ValidatorService {
         return true;
     }
 
-    public boolean isValidPackages(List<Package> packages) {
-        List<Package> invalidPackages = new ArrayList<>();
-        for (Package pkg : packages) {
-            if (!isValidPackage(pkg)) {
-                invalidPackages.add(pkg);
-            }
-        }
-        if (!invalidPackages.isEmpty()) {
-            for (Package invalidPkg : invalidPackages) {
-                log.error("Упаковка с ID {} имеет некорректную форму: {}",
-                        invalidPkg.getId(), invalidPkg.getType().getShape());
-            }
-            return false;
+    /**
+     * Проверяет возможность парсинга формы посылки и возвращает список строк, представляющих форму.
+     *
+     * @param form строка, описывающая форму посылки
+     * @return список строк, представляющих форму
+     * @throws IllegalArgumentException если форма не указана или некорректна
+     */
+    public static List<String> isAbleToParseForm(String form) {
+        if (form == null || form.isEmpty()) {
+            throw new IllegalArgumentException("Форма посылки не указана.");
         }
 
-        log.info("Все упаковки успешно проверены.");
-        return true;
+        if (form.contains(",")) {
+            List<String> rows = List.of(form.split(","));
+            validateDiagonalTouch(rows);
+            return rows;
+        }
+
+        return List.of(form);
     }
 
-    private boolean isValidPackage(Package pkg) {
-        PackageType type = pkg.getType();
-        List<String> shape = type.getShape();
+    /**
+     * Проверяет, чтобы форма посылки не имела диагонально соединённых символов.
+     *
+     * @param rows список строк, представляющих форму посылки
+     * @throws IllegalArgumentException если форма содержит некорректное диагональное соединение
+     */
+    public static void validateDiagonalTouch(List<String> rows) {
+        int height = rows.size();
 
-        int maxWidth = 0;
-        for (String row : shape) {
-            maxWidth = Math.max(maxWidth, row.length());
-        }
+        for (int i = 0; i < height - 1; i++) {
+            String currentRow = rows.get(i);
+            String nextRow = rows.get(i + 1);
 
-        for (String row : shape) {
-            if (row.length() < maxWidth) {
-                for (int x = row.length(); x < maxWidth; x++) {
-                    if (row.length() > x) {
-                        return false;
+            for (int j = 0; j < currentRow.length(); j++) {
+                char current = currentRow.charAt(j);
+
+                if (current != ' ') {
+                    boolean hasLeft = j > 0 && currentRow.charAt(j - 1) != ' ';
+                    boolean hasRight = j < currentRow.length() - 1 && currentRow.charAt(j + 1) != ' ';
+                    boolean hasBottom = j < nextRow.length() && nextRow.charAt(j) != ' ';
+
+                    if ((!hasLeft && !hasBottom) || (!hasRight && !hasBottom)) {
+                        throw new IllegalArgumentException("Символ в позиции (" + i + ", " + j + ") висит в воздухе.");
                     }
                 }
             }
         }
-
-        return true;
     }
-
-    public boolean isValidJsonStructure(Map<String, List<TruckDto>> jsonData) {
-        if (!jsonData.containsKey("trucks")) {
-            log.error("Ошибка: JSON не содержит ключ 'trucks'.");
-            return false;
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        CollectionType truckListType = objectMapper.getTypeFactory()
-                .constructCollectionType(List.class, TruckDto.class);
-
-        try {
-            List<TruckDto> trucks = objectMapper.convertValue(jsonData.get("trucks"), truckListType);
-
-            for (TruckDto truck : trucks) {
-                if (truck.getPackages() == null || truck.getPackages().isEmpty()) {
-                    log.error("Ошибка: У грузовика ID {} отсутствуют упаковки.", truck.getTruckId());
-                    return false;
-                }
-
-                for (PackageDto pkg : truck.getPackages()) {
-                    if (pkg.getType() == null || pkg.getType().isBlank()) {
-                        log.error("Ошибка: У одной из посылок отсутствует тип.");
-                        return false;
-                    }
-                }
-            }
-
-            log.info("JSON успешно провалидирован.");
-            return true;
-        } catch (Exception e) {
-            log.error("Ошибка при валидации структуры JSON: {}", e.getMessage());
-            return false;
-        }
-    }
-
-
-    public boolean isFileExists(File jsonFile) {
-        return jsonFile.exists();
-    }
-
-
 }
