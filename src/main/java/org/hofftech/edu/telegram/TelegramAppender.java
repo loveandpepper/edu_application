@@ -1,4 +1,4 @@
-package org.hofftech.edu.util.telegram;
+package org.hofftech.edu.telegram;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
@@ -13,8 +13,8 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 @Setter
 @Slf4j
 public final class TelegramAppender extends AppenderBase<ILoggingEvent> {
-    private static AbsSender bot;
-    private static String chatId;
+    private AbsSender bot;
+    private String chatId;
 
     /**
      * Инициализирует Telegram-бота для отправки сообщений.
@@ -22,20 +22,11 @@ public final class TelegramAppender extends AppenderBase<ILoggingEvent> {
      * @param telegramBot объект бота для отправки сообщений
      * @throws IllegalArgumentException если бот равен null
      */
-    public static void initialize(AbsSender telegramBot) {
+    public void initialize(AbsSender telegramBot) {
         if (telegramBot == null) {
             throw new IllegalArgumentException("Бот не может быть null");
         }
         bot = telegramBot;
-    }
-
-    /**
-     * Устанавливает идентификатор чата Telegram для отправки сообщений.
-     *
-     * @param telegramChatId идентификатор чата
-     */
-    public void setChatId(String telegramChatId) {
-        chatId = telegramChatId;
     }
 
     /**

@@ -2,11 +2,10 @@ package org.hofftech.edu.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.factory.packingstategy.PackingStrategy;
+import org.hofftech.edu.factory.packingstategy.PackingStrategyFactory;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
-import org.hofftech.edu.service.packingstategy.DefaultPackingStrategy;
-import org.hofftech.edu.service.packingstategy.PackingStrategyFactory;
-import org.hofftech.edu.util.FileReaderUtil;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -34,26 +33,25 @@ public class FileProcessingService {
      * @param saveToFile     флаг, указывающий, сохранять ли данные грузовиков в файл
      * @param useEvenAlg     флаг использования алгоритма равномерного распределения
      */
-    public void processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
-                            boolean useEasyAlg,
-                            boolean saveToFile,
-                            boolean useEvenAlg) {
+    public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
+                              boolean useEasyAlg, boolean saveToFile, boolean useEvenAlg) {
         List<Package> packages = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
-        DefaultPackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
+        PackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
         List<Truck> trucks = strategy.addPackages(packages, useEasyAlg, useEvenAlg, trucksFromArgs);
 
         if (saveToFile) {
             saveTrucksToJson(trucks);
+            return "Данные успешно сохранены в файл.";
         } else {
-            truckService.printTrucks(trucks);
+            return truckService.printTrucks(trucks);
         }
     }
 
     private List<Package> getPackagesFromFileOrArgs(Path parcelsFile, String parcelsText) {
         List<Package> packages = new ArrayList<>();
         if (parcelsFile != null) {
-            List<String> lines = FileReaderUtil.readAllLines(parcelsFile);
-            validateFile(parcelsFile, lines);
+            List<String> lines = FileReaderService.readAllLines(parcelsFile);
+            validatorService.isValidFile(lines);
             packages = parseFileLines(parcelsFile, lines);
         } else if (parcelsText != null && !parcelsText.isEmpty()) {
             packages = fileParser.getPackagesFromArgs(parcelsText);
@@ -88,23 +86,9 @@ public class FileProcessingService {
     protected List<Package> parseFileLines(Path filePath, List<String> lines) {
         List<Package> packages = fileParser.parsePackagesFromFile(lines);
         if (packages.isEmpty()) {
-            log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
+            throw new RuntimeException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
         }
         log.info("Успешно распарсено {} упаковок.", packages.size());
         return packages;
-    }
-    /**
-     * Валидирует содержимое файла.
-     *
-     * @param filePath путь к файлу
-     * @param lines    строки файла
-     * @throws RuntimeException если файл не проходит валидацию
-     */
-    protected void validateFile(Path filePath, List<String> lines) {
-        if (!validatorService.isValidFile(lines)) {
-            log.error("Файл не прошел валидацию");
-            throw new RuntimeException("Файл не прошел валидацию: " + filePath);
-        }
-        log.info("Файл успешно прошел валидацию.");
     }
 }

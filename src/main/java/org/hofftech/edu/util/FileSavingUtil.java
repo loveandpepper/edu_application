@@ -18,36 +18,72 @@ public final class FileSavingUtil {
     /**
      * Сохраняет данные о посылках в указанный файл.
      *
-     * @param packages       карта, где ключ — имя посылки, а значение — количество
-     * @param outputFilePath путь к выходному файлу
-     * @param withCount      если true, записываются данные с количеством; иначе только имена посылок
-     * @throws IOException если произошла ошибка записи в файл
+     * @param packages       список карт: каждая карта - имя посылки, а значение - количество.
+     * @param outputFilePath путь к выходному файлу.
+     * @param withCount      если true, пишется имя посылки с количеством; иначе только имена посылок.
+     * @throws IOException если произошла ошибка при записи в файл.
      */
-    public static void savePackagesToFile(List<Map.Entry<String, Long>> packages,
-                                          String outputFilePath, boolean withCount) throws IOException {
+    public void savePackagesToFile(List<Map<String, Long>> packages, String outputFilePath, boolean withCount) throws IOException {
         File outputFile = new File(outputFilePath);
-        log.info("Начинаем запись в файл {} количества", withCount ? "с подсчётом" : "без подсчёта");
+        log.info("Начинаем запись в файл {} количества: {}", outputFilePath, withCount ? "с подсчётом" : "без подсчёта");
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            for (Map.Entry<String, Long> entry : packages) {
-                String line;
-                if (withCount) {
-                    line = String.format("\"%s\" - %d шт", entry.getKey(), entry.getValue());
-                } else {
-                    for (int i = 0; i < entry.getValue(); i++) {
-                        line = String.format("\"%s\"", entry.getKey());
-                        writer.write(line);
-                        writer.newLine();
-                    }
-                    continue;
-                }
-                writer.write(line);
-                writer.newLine();
+            for (Map<String, Long> map : packages) {
+                writePackageMapToFile(map, writer, withCount);
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("Ошибка записи в файл: {}", e.getMessage());
             throw e;
         }
+
         log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());
     }
 
+    /**
+     * Пишет содержимое одной карты в файл.
+     *
+     * @param map       карта: имя посылки - количество.
+     * @param writer    BufferedWriter для записи в файл.
+     * @param withCount если true, записывается с количеством.
+     * @throws IOException если произошла ошибка при записи в файл.
+     */
+    private void writePackageMapToFile(Map<String, Long> map, BufferedWriter writer, boolean withCount) throws IOException {
+        for (String key : map.keySet()) {
+            if (withCount) {
+                writeLineWithCount(writer, key, map.get(key));
+            } else {
+                writeLinesWithoutCount(writer, key, map.get(key));
+            }
+        }
+    }
+
+    /**
+     * Записывает строку с количеством в файл.
+     *
+     * @param writer BufferedWriter для записи в файл.
+     * @param key    имя посылки.
+     * @param value  количество посылок.
+     * @throws IOException если произошла ошибка при записи в файл.
+     */
+    private void writeLineWithCount(BufferedWriter writer, String key, Long value) throws IOException {
+        String line = String.format("%s - %d шт", key, value);
+        writer.write(line);
+        writer.newLine();
+    }
+
+    /**
+     * Записывает строки без количества в файл.
+     *
+     * @param writer BufferedWriter для записи в файл.
+     * @param key    имя посылки.
+     * @param value  количество посылок.
+     * @throws IOException если произошла ошибка при записи в файл.
+     */
+    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) throws IOException {
+        for (int i = 0; i < value; i++) {
+            writer.write(key);
+            writer.newLine();
+        }
+    }
 }
+

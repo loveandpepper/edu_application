@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @ToString
 public class Truck {
+    private static final int SHAPE_FIRST_INDEX = 0;
     private final int width;
     private final int height;
 
@@ -25,8 +26,8 @@ public class Truck {
         this.grid = new char[height][width];
         this.packages = new ArrayList<>();
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = SHAPE_FIRST_INDEX; i < height; i++) {
+            for (int j = SHAPE_FIRST_INDEX; j < width; j++) {
                 grid[i][j] = ' ';
             }
         }

@@ -2,7 +2,7 @@ package org.hofftech.edu.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.handler.DefaultCommandHandler;
+import org.hofftech.edu.handler.CommandHandler;
 
 import java.util.Scanner;
 
@@ -15,7 +15,7 @@ public class ConsoleController {
     /**
      * Запускает цикл обработки пользовательских команд.
      */
-    private final DefaultCommandHandler defaultCommandHandler;
+    private final CommandHandler commandHandler;
 
     public void listen() {
         try (Scanner scanner = new Scanner(System.in)) {
@@ -24,11 +24,18 @@ public class ConsoleController {
 
             while (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
-                defaultCommandHandler.handle(command);
+                try {
+                    String result = commandHandler.handle(command);
+                    if (result != null && !result.isEmpty()) {
+                        System.out.println(result);
+                    }
+                } catch (Exception e) {
+                    log.error("Ошибка при выполнении команды: {}", e.getMessage());
+                    System.out.println(e.getMessage());
+                }
             }
         } catch (Exception e) {
-            log.error("Ошибка во время работы консольного контроллера: {}", e.getMessage(), e);
+            log.error("Ошибка работы контроллера: {}", e.getMessage());
         }
     }
-
 }

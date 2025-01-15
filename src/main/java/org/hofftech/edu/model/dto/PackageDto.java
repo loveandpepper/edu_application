@@ -14,10 +14,4 @@ public class PackageDto {
     private List<String> shape;
     private char symbol;
     private PositionDto startPosition;
-
-    @Data
-    public static class PositionDto {
-        private int x;
-        private int y;
-    }
 }

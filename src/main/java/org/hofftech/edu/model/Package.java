@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 @ToString
 @AllArgsConstructor
-public class Package {
+public class Package implements Comparable<Package> {
     private String name;
     private List<String> shape;
     private char symbol;
@@ -45,11 +45,19 @@ public class Package {
         this.symbol = newSymbol;
     }
 
-    public List<String> getUniqueShape() {
+    public List<String> getReversedShape() {
         List<String> reversedShape = new ArrayList<>(this.shape);
         Collections.reverse(reversedShape);
         return reversedShape;
     }
 
 
+    @Override
+    public int compareTo(Package other) {
+        int heightDiff = Integer.compare(other.getHeight(), this.getHeight());
+        if (heightDiff == 0) {
+            return Integer.compare(other.getWidth(), this.getWidth());
+        }
+        return heightDiff;
+    }
 }

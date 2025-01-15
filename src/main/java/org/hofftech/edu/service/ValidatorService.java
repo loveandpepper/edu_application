@@ -1,7 +1,6 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
@@ -11,20 +10,9 @@ import java.util.List;
  */
 @Slf4j
 public class ValidatorService {
-    /**
-     * Проверяет, содержит ли файл допустимые данные.
-     *
-     * @param lines список строк из файла
-     * @return true, если файл валиден, иначе false
-     */
-    public boolean isValidFile(List<String> lines) {
-        if (CollectionUtils.isEmpty(lines)) {
-            log.error("Файл пустой или не содержит данных.");
-            return false;
-        }
-        log.info("Файл успешно проверен. Количество строк: {}", lines.size());
-        return true;
-    }
+
+    private static final String FORM_SPLITTER = ",";
+    private static final int FIRST_ROW_INDEX = 0;
 
     /**
      * Проверяет возможность парсинга формы посылки и возвращает список строк, представляющих форму.
@@ -33,13 +21,13 @@ public class ValidatorService {
      * @return список строк, представляющих форму
      * @throws IllegalArgumentException если форма не указана или некорректна
      */
-    public static List<String> isAbleToParseForm(String form) {
+    public static List<String> validateFord(String form) {
         if (form == null || form.isEmpty()) {
             throw new IllegalArgumentException("Форма посылки не указана.");
         }
 
-        if (form.contains(",")) {
-            List<String> rows = List.of(form.split(","));
+        if (form.contains(FORM_SPLITTER)) {
+            List<String> rows = List.of(form.split(FORM_SPLITTER));
             validateDiagonalTouch(rows);
             return rows;
         }
@@ -56,11 +44,11 @@ public class ValidatorService {
     public static void validateDiagonalTouch(List<String> rows) {
         int height = rows.size();
 
-        for (int i = 0; i < height - 1; i++) {
+        for (int i = FIRST_ROW_INDEX; i < height - 1; i++) {
             String currentRow = rows.get(i);
             String nextRow = rows.get(i + 1);
 
-            for (int j = 0; j < currentRow.length(); j++) {
+            for (int j = FIRST_ROW_INDEX; j < currentRow.length(); j++) {
                 char current = currentRow.charAt(j);
 
                 if (current != ' ') {
@@ -74,5 +62,19 @@ public class ValidatorService {
                 }
             }
         }
+    }
+
+    /**
+     * Проверяет, содержит ли файл допустимые данные.
+     *
+     * @param lines список строк из файла
+     * @return true, если файл валиден, иначе false
+     */
+    public boolean isValidFile(List<String> lines) {
+        if (lines.isEmpty()) {
+            throw new RuntimeException("Файл пустой или не содержит данных.");
+        }
+        log.info("Файл успешно проверен. Количество строк: {}", lines.size());
+        return true;
     }
 }

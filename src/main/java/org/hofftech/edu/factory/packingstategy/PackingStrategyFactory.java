@@ -1,6 +1,8 @@
-package org.hofftech.edu.service.packingstategy;
+package org.hofftech.edu.factory.packingstategy;
 
 import lombok.AllArgsConstructor;
+import org.hofftech.edu.factory.packingstategy.impl.IndividualTruckStrategy;
+import org.hofftech.edu.factory.packingstategy.impl.MultipleTruckStrategy;
 import org.hofftech.edu.service.TruckService;
 
 /**
@@ -14,11 +16,11 @@ public class PackingStrategyFactory {
     /**
      * Возвращает стратегию упаковки на основе выбранного алгоритма.
      *
-     * @param useEasyAlgorithm флаг использования упрощённого алгоритма
+     * @param ifEasyAlgorithm флаг использования упрощённого алгоритма
      * @return объект стратегии упаковки
      */
-    public DefaultPackingStrategy getStrategy(boolean useEasyAlgorithm) {
-        if (useEasyAlgorithm) {
+    public PackingStrategy getStrategy(boolean ifEasyAlgorithm) {
+        if (ifEasyAlgorithm) {
             return new IndividualTruckStrategy(truckService);
         } else {
             return new MultipleTruckStrategy(truckService);

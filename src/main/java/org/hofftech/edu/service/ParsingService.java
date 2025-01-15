@@ -14,6 +14,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ParsingService {
+    private static final String COMMA_REPLACEMENTS = "[“”\"]";
+    private static final String PARCELS_SPLITTER = ",";
     private final PackageRepository packageRepository;
 
     /**
@@ -25,19 +27,20 @@ public class ParsingService {
     public List<Package> parsePackagesFromFile(List<String> lines) {
         List<Package> packages = new ArrayList<>();
         for (String packageName : lines) {
-            String trimmedName = packageName.trim().replaceAll("[“”\"]", "");
+            String trimmedName = packageName.trim().replaceAll(COMMA_REPLACEMENTS, "");
             if (trimmedName.isEmpty()) {
                 continue;
             }
-            try {
-                Package pkg = packageRepository.findPackage(trimmedName);
-                packages.add(pkg);
-            } catch (IllegalArgumentException e) {
-                log.warn("Посылка '{}' из файла  не найдена и будет пропущена.", trimmedName);
-            }
+            packageRepository.findPackage(trimmedName).ifPresentOrElse(
+                    packages::add,
+                    () -> {
+                        throw new RuntimeException("Посылка " + trimmedName + " не найдена!");
+                    }
+            );
         }
         return packages;
     }
+
 
     /**
      * Разбирает текст с именами посылок, переданный как аргумент, и преобразует его в список объектов Package.
@@ -48,25 +51,20 @@ public class ParsingService {
      */
     public List<Package> getPackagesFromArgs(String parcelsText) {
         if (parcelsText == null || parcelsText.isBlank()) {
-            log.warn("Текст посылок пустой.");
             throw new IllegalArgumentException("Аргумент с посылками пуст");
         }
-
         List<Package> packages = new ArrayList<>();
-        String[] names = parcelsText.split(",");
-
+        String[] names = parcelsText.split(PARCELS_SPLITTER);
         for (String name : names) {
             String trimmedName = name.trim();
             if (!trimmedName.isEmpty()) {
-                try {
-                    Package pkg = packageRepository.findPackage(trimmedName);
-                    packages.add(pkg);
-                } catch (IllegalArgumentException e) {
-                    log.warn("Посылка '{}' из аргументов не найдена и будет пропущена.", trimmedName);
-                }
+                packageRepository.findPackage(trimmedName).ifPresentOrElse(
+                        packages::add,
+                        () -> log.warn("Посылка '{}' из аргументов не найдена и будет пропущена.", trimmedName)
+                );
             }
         }
-
         return packages;
     }
+
 }

@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +16,10 @@ import java.util.stream.Collectors;
  * Предоставляет методы для добавления, редактирования, удаления и поиска посылок.
  */
 public class PackageRepository {
+    private static final int FIRST_CHAR = 0;
+    private static final int START_POSITION_X = 0;
+    private static final int START_POSITION_Y = 0;
+
     private final Map<String, Package> packages = new HashMap<>();
     /**
      * Добавляет новую посылку в репозиторий.
@@ -35,13 +40,13 @@ public class PackageRepository {
      * @return объект Package, если найден
      * @throws IllegalArgumentException если посылка с таким именем не найдена
      */
-    public Package findPackage(String name) {
+    public Optional<Package> findPackage(String name) {
         for (String key : packages.keySet()) {
             if (key.equalsIgnoreCase(name)) {
-                return packages.get(key);
+                return Optional.of(packages.get(key)); // Оборачиваем найденный результат в Optional
             }
         }
-        throw new IllegalArgumentException("Посылка не найдена: " + name);
+        return Optional.empty();
     }
     /**
      * Обновляет данные существующей посылки.
@@ -88,8 +93,8 @@ public class PackageRepository {
             packages.put(name, new Package(
                     name,
                     type.getShape(),
-                    type.getShape().getFirst().charAt(0),
-                    new PackageStartPosition(0, 0)
+                    type.getShape().getFirst().charAt(FIRST_CHAR),
+                    new PackageStartPosition(START_POSITION_X, START_POSITION_Y)
             ));
         }
     }

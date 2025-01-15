@@ -1,4 +1,4 @@
-package org.hofftech.edu.service.packingstategy;
+package org.hofftech.edu.factory.packingstategy;
 
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
@@ -9,7 +9,7 @@ import java.util.List;
  * Интерфейс для реализации стратегий упаковки.
  * Определяет метод для размещения посылок в грузовиках.
  */
-public interface DefaultPackingStrategy {
+public interface PackingStrategy {
     /**
      * Размещает посылки в грузовиках согласно определённой стратегии.
      *

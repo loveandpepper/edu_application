@@ -12,6 +12,10 @@ import java.util.List;
  */
 @Slf4j
 public class PackingService {
+
+    private static final int START_Y_POSITION = 0;
+    private static final int START_X_POSITION = 0;
+
     /**
      * Проверяет, может ли упаковка быть добавлена в указанную позицию грузовика.
      *
@@ -23,15 +27,15 @@ public class PackingService {
      */
     protected boolean canAddPackage(Truck truck, Package pkg, int startX, int startY) {
         log.debug("Проверяем возможность добавить упаковку {} в координаты X={}, Y={}", pkg.getName(), startX, startY);
-        List<String> shape = pkg.getUniqueShape();
+        List<String> shape = pkg.getReversedShape();
         int height = shape.size();
 
         if (checkTruckLimits(truck, pkg, startX, startY, height, shape)) return false;
 
-        if (checkForIntersection(truck, pkg, startX, startY, height, shape)) return false;
+        if (isIntersection(truck, pkg, startX, startY, height, shape)) return false;
 
         String topRow = shape.getFirst();
-        int requiredSupport = (int) Math.ceil(topRow.length() / 2.0);
+        double requiredSupport = Math.ceil(topRow.length() / 2.0);
         int support = 0;
         if (startY == 0) {
             log.debug("Упаковка {} внизу грузовика, опора не требуется.", pkg.getName());
@@ -41,7 +45,7 @@ public class PackingService {
         return !checkForSupport(truck, pkg, startX, startY, topRow, support, requiredSupport);
     }
 
-    private static boolean checkForSupport(Truck truck, Package pkg, int startX, int startY, String topRow, int support, int requiredSupport) {
+    private boolean checkForSupport(Truck truck, Package pkg, int startX, int startY, String topRow, int support, double requiredSupport) {
         for (int x = 0; x < topRow.length(); x++) {
             if (topRow.charAt(x) != ' ' && truck.getGrid()[startY - 1][startX + x] != ' ') {
                 support++;
@@ -54,7 +58,7 @@ public class PackingService {
         return false;
     }
 
-    private static boolean checkForIntersection(Truck truck, Package pkg, int startX, int startY, int height, List<String> shape) {
+    private boolean isIntersection(Truck truck, Package pkg, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
                 if (shape.get(y).charAt(x) != ' ' && truck.getGrid()[startY + y][startX + x] != ' ') {
@@ -66,7 +70,7 @@ public class PackingService {
         return false;
     }
 
-    private static boolean checkTruckLimits(Truck truck, Package pkg, int startX, int startY, int height, List<String> shape) {
+    private boolean checkTruckLimits(Truck truck, Package pkg, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
             if (startX + rowWidth > truck.getWidth() || startY + y >= truck.getHeight()) {
@@ -82,28 +86,28 @@ public class PackingService {
      * Пытается добавить упаковку в грузовик.
      *
      * @param truck грузовик, куда нужно добавить упаковку
-     * @param pkg   упаковка для добавления
+     * @param providedPackage   упаковка для добавления
      * @return true, если упаковка успешно добавлена, иначе false
      */
-    protected boolean addPackage(Truck truck, Package pkg) {
-        log.info("Пытаемся добавить упаковку {} в грузовик.", pkg.getName());
+    protected boolean tryPack(Truck truck, Package providedPackage) {
+        log.info("Пытаемся добавить упаковку {} в грузовик.", providedPackage.getName());
 
-        List<String> shape = pkg.getUniqueShape();
+        List<String> shape = providedPackage.getReversedShape();
         int height = shape.size();
 
-        for (int startY = 0; startY <= truck.getHeight() - height; startY++) {
-            for (int startX = 0; startX <= truck.getWidth() - shape.getFirst().length(); startX++) {
-                if (canAddPackage(truck, pkg, startX, startY)) {
-                    log.info("Упаковка {} успешно добавлена", pkg.getName());
-                    pkg.setPackageStartPosition(new PackageStartPosition(startX, startY));
-                    placePackage(truck, pkg, startX, startY);
+        for (int startY = START_Y_POSITION; startY <= truck.getHeight() - height; startY++) {
+            for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.getFirst().length(); startX++) {
+                if (canAddPackage(truck, providedPackage, startX, startY)) {
+                    log.info("Упаковка {} успешно добавлена", providedPackage.getName());
+                    providedPackage.setPackageStartPosition(new PackageStartPosition(startX, startY));
+                    placePackage(truck, providedPackage, startX, startY);
                     return true;
                 }
             }
         }
 
-        log.warn("Упаковка {} не смогла быть добавлена в грузовик.", pkg.getName());
-        return false;
+        log.warn("Упаковка {} не смогла быть добавлена в грузовик.", providedPackage.getName());
+        return false; //тут завязана логика, не нужно кидать исключение
     }
 
     /**
@@ -115,7 +119,7 @@ public class PackingService {
      * @param startY координата Y начальной позиции
      */
     protected void placePackage(Truck truck, Package pkg, int startX, int startY) {
-        List<String> shape = pkg.getUniqueShape();
+        List<String> shape = pkg.getReversedShape();
 
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {

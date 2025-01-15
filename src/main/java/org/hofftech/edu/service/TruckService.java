@@ -18,17 +18,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TruckService {
     private static final String TRUCK_STANDARD_SIZE = "6x6";
+    private static final String TRUCK_SIZE_SPLITTER = "x";
+    private static final int FIRST_ROW_INDEX = 0;
+    private static final int FIRST_PART = 0;
+    private static final int SECOND_PART = 1;
     private final PackingService packingService;
 
     /**
      * Добавляет посылки в несколько грузовиков.
      *
      * @param packageList список посылок
-     * @param evenAlg     флаг равномерного распределения посылок
+     * @param isEvenAlgorithm     флаг равномерного распределения посылок
      * @param trucksFromArgs размеры грузовиков, переданные аргументом
      * @return список грузовиков с размещёнными посылками
      */
-    public List<Truck> addPackagesToMultipleTrucks(List<Package> packageList, Boolean evenAlg, List<String> trucksFromArgs) {
+    public List<Truck> addPackagesToMultipleTrucks(List<Package> packageList, Boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", packageList.size());
         sortPackages(packageList);
 
@@ -41,7 +45,7 @@ public class TruckService {
             for (String providedTruckSize : trucksFromArgs) {
                 trucks.add(createTruck(providedTruckSize));
             }
-            if (!evenAlg) {
+            if (!isEvenAlgorithm) {
                 placePackages(packageList, trucks);
             } else {
                 distributePackagesEvenly(packageList, trucks);
@@ -59,7 +63,7 @@ public class TruckService {
 
             while (iterator.hasNext()) {
                 Package pkg = iterator.next();
-                if (packingService.addPackage(truck, pkg)) {
+                if (packingService.tryPack(truck, pkg)) {
                     iterator.remove();
                     log.info("Упаковка {} успешно размещена в грузовике с размерами 6x6.", pkg.getName());
                 } else {
@@ -79,7 +83,6 @@ public class TruckService {
      */
     public void distributePackagesEvenly(List<Package> packages, List<Truck> trucks) {
         if (trucks.isEmpty()) {
-            log.error("Количество грузовиков не может быть нулевым.");
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
         }
         int totalPackages = packages.size();
@@ -88,19 +91,19 @@ public class TruckService {
 
         log.info("Распределяем {} посылок на {} грузовиков.", totalPackages, numberOfTrucks);
 
-        for (Package pkg : packages) {
+        for (Package nextPackage : packages) {
             boolean placed = false;
-            for (int i = 0; i < numberOfTrucks; i++) {
+            for (int i = FIRST_ROW_INDEX; i < numberOfTrucks; i++) {
                 Truck currentTruck = trucks.get((currentTruckIndex + i) % numberOfTrucks);
-                if (packingService.addPackage(currentTruck, pkg)) {
-                    log.info("Посылка {} успешно размещена в грузовике {}.", pkg.getName(), (currentTruckIndex + i) % numberOfTrucks + 1);
+                if (packingService.tryPack(currentTruck, nextPackage)) {
+                    log.info("Посылка {} успешно размещена в грузовике {}.", nextPackage.getName(), (currentTruckIndex + i) % numberOfTrucks + 1);
                     placed = true;
                     currentTruckIndex = (currentTruckIndex + i + 1) % numberOfTrucks;
                     break;
                 }
             }
             if (!placed) {
-                log.error("Не удалось разместить посылку {} в любом из грузовиков.", pkg.getName());
+                log.error("Не удалось разместить посылку {} в любом из грузовиков.", nextPackage.getName());
                 throw new RuntimeException("Не хватает указанных грузовиков для размещения!");
             }
         }
@@ -115,7 +118,7 @@ public class TruckService {
             boolean placed = false;
 
             for (Truck truck : trucks) {
-                if (packingService.addPackage(truck, pkg)) {
+                if (packingService.tryPack(truck, pkg)) {
                     log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", pkg.getName());
                     placed = true;
                     break;
@@ -125,7 +128,7 @@ public class TruckService {
                 log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", pkg.getName());
 
                 for (Truck truck : trucks) {
-                    if (packingService.addPackage(truck, pkg)) {
+                    if (packingService.tryPack(truck, pkg)) {
                         log.info("Упаковка с ID {} размещена после повторной проверки.", pkg.getName());
                         placed = true;
                         break;
@@ -137,7 +140,7 @@ public class TruckService {
                     Truck newTruck = trucks.get(nextTruckIndex);
                     nextTruckIndex++;
 
-                    if (packingService.addPackage(newTruck, pkg)) {
+                    if (packingService.tryPack(newTruck, pkg)) {
                         log.info("Упаковка с ID {} размещена в новом грузовике.", pkg.getName());
                     } else {
                         log.error("Ошибка: упаковка с ID {} не может быть размещена даже в новом грузовике.", pkg.getName());
@@ -150,24 +153,18 @@ public class TruckService {
         }
     }
 
-    private static Truck createTruck(String providedTruckSize) {
+    private Truck createTruck(String providedTruckSize) {
         if (providedTruckSize == null || providedTruckSize.isEmpty()) {
             providedTruckSize = TRUCK_STANDARD_SIZE;
         }
-        String[] splitSize = providedTruckSize.split("x");
-        Truck currentTruck = new Truck(Integer.parseInt(splitSize[0].trim()), Integer.parseInt(splitSize[1].trim()));
+        String[] splitSize = providedTruckSize.split(TRUCK_SIZE_SPLITTER);
+        Truck currentTruck = new Truck(Integer.parseInt(splitSize[FIRST_PART].trim()), Integer.parseInt(splitSize[SECOND_PART].trim()));
         log.info("Создан грузовик размером {}x{}.", splitSize[0].trim(), splitSize[1].trim());
         return currentTruck;
     }
 
-    private static void sortPackages(List<Package> packageList) {
-        packageList.sort((a, b) -> {
-            int heightDiff = Integer.compare(b.getHeight(), a.getHeight());
-            if (heightDiff == 0) {
-                return Integer.compare(b.getWidth(), a.getWidth());
-            }
-            return heightDiff;
-        });
+    private void sortPackages(List<Package> packageList) {
+        packageList.sort(null);
         log.info("Упаковки отсортированы по высоте и ширине.");
     }
 
@@ -177,19 +174,25 @@ public class TruckService {
      * @param trucks список грузовиков
      */
     @SneakyThrows
-    public void printTrucks(List<Truck> trucks) {
-        log.info("Начало вывода состояния всех грузовиков. Всего грузовиков: {}", trucks.size());
+    public String printTrucks(List<Truck> trucks) {
+        log.info("Начало формирования состояния всех грузовиков. Всего грузовиков: {}", trucks.size());
+        StringBuilder result = new StringBuilder();
         int truckNumber = 1;
+
         for (Truck truck : trucks) {
-            System.out.println("Truck " + truckNumber + "\n" + truck.getWidth() + "x" + truck.getHeight());
-            printTruck(truck);
+            result.append("Truck ").append(truckNumber).append("\n")
+                    .append(truck.getWidth()).append("x").append(truck.getHeight()).append("\n");
+            result.append(getTruckRepresentation(truck)).append("\n");
             truckNumber++;
         }
+
+        return result.toString();
     }
 
-    private void printTruck(Truck truck) {
+    private String getTruckRepresentation(Truck truck) {
         StringBuilder truckRepresentation = new StringBuilder();
         truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
+
         for (int y = truck.getHeight() - 1; y >= 0; y--) {
             truckRepresentation.append("+");
             for (int x = 0; x < truck.getWidth(); x++) {
@@ -199,7 +202,8 @@ public class TruckService {
             truckRepresentation.append("+\n");
         }
         truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
-        System.out.println(String.valueOf(truckRepresentation));
+
+        return truckRepresentation.toString();
     }
 
     /**
@@ -220,7 +224,7 @@ public class TruckService {
             }
             Truck truck = createTruck(providedTrucks.get(truckIndex));
             truckIndex++;
-            packingService.addPackage(truck, pkg);
+            packingService.tryPack(truck, pkg);
             trucks.add(truck);
         }
         return trucks;
