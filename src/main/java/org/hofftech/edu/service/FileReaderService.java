@@ -1,6 +1,7 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.exception.InputFileException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,15 +24,15 @@ public final class FileReaderService {
     public static List<String> readAllLines(Path filePath) {
         try {
             if (!Files.exists(filePath)) {
-                throw new IOException("Файл не существует: " + filePath);
+                throw new InputFileException("Файл не существует: " + filePath);
             }
             if (!Files.isReadable(filePath)) {
-                throw new IOException("Файл недоступен для чтения: " + filePath);
+                throw new InputFileException("Файл недоступен для чтения: " + filePath);
             }
             log.info("Чтение строк из файла: {}", filePath);
             return Files.readAllLines(filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка чтения файла: " + filePath, e);
+            throw new InputFileException("Ошибка чтения файла: " + filePath);
         }
     }
 }

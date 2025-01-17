@@ -1,6 +1,6 @@
 package org.hofftech.edu.service;
 
-import org.hofftech.edu.factory.CommandTypeFactory;
+import lombok.AllArgsConstructor;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.model.ParsedCommand;
 
@@ -14,7 +14,9 @@ import java.util.regex.Pattern;
  * Преобразует команды в объект ParsedCommand с извлечёнными параметрами.
  */
 
+@AllArgsConstructor
 public class CommandParser {
+
     private final static String COMMAND_REGEX = "-([a-zA-Z]+)\\s+\"([^\"]+)\"|-([a-zA-Z]+)\\s+([^\\s]+)";
     private static final String SAVE = "-save";
     private static final String EASY = "-easy";
@@ -32,7 +34,10 @@ public class CommandParser {
     private static final int GROUP_TWO = 2;
     private static final int GROUP_THREE = 3;
     private static final int GROUP_FOUR = 4;
+    private static final int FIRST_ARGUMENT_INDEX = 0;
+    private static final String COMMAND_SPLIT_SYMBOL = " ";
 
+    private final CommandTypeService commandTypeService;
     /**
      * Разбирает строку команды и преобразует её в объект ParsedCommand.
      *
@@ -41,10 +46,10 @@ public class CommandParser {
      */
     public ParsedCommand parse(String command) {
         Map<String, String> parameters = extractParameters(command);
-        String firstArgumentFromCommand = command.split(" ")[0].
+        String firstArgumentFromCommand = command.split(COMMAND_SPLIT_SYMBOL)[FIRST_ARGUMENT_INDEX].
                 replaceFirst("^/", "").toUpperCase();
 
-        CommandType commandType = CommandTypeFactory.determineCommandType(firstArgumentFromCommand);
+        CommandType commandType = commandTypeService.determineCommandType(firstArgumentFromCommand);
 
         ParsedCommand parsedCommand = createParsedCommand(parameters);
         parsedCommand.setCommandType(commandType);

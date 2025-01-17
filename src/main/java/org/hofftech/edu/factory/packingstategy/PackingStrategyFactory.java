@@ -19,7 +19,7 @@ public class PackingStrategyFactory {
      * @param ifEasyAlgorithm флаг использования упрощённого алгоритма
      * @return объект стратегии упаковки
      */
-    public PackingStrategy getStrategy(boolean ifEasyAlgorithm) {
+    public PackingStrategy createStrategy(boolean ifEasyAlgorithm) {
         if (ifEasyAlgorithm) {
             return new IndividualTruckStrategy(truckService);
         } else {

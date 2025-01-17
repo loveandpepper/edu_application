@@ -10,6 +10,7 @@ import java.util.List;
  */
 @Data
 public class PackageDto {
+
     private String name;
     private List<String> shape;
     private char symbol;

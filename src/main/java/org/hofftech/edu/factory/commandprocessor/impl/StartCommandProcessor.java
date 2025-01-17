@@ -6,9 +6,9 @@ import org.hofftech.edu.model.ParsedCommand;
 
 @Getter
 public class StartCommandProcessor implements CommandProcessor {
-    private String result;
+
     @Override
-    public void execute(ParsedCommand command) {
-        result = "Список команд в readme";
+    public String execute(ParsedCommand command) {
+        return "Список команд в readme";
     }
 }

@@ -1,5 +1,7 @@
 package org.hofftech.edu.repository;
 
+import org.hofftech.edu.exception.PackageNameException;
+import org.hofftech.edu.exception.PackageNotFoundException;
 import org.hofftech.edu.model.DefaultPackagesType;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
@@ -9,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Репозиторий для управления данными о посылках.
@@ -24,14 +25,14 @@ public class PackageRepository {
     /**
      * Добавляет новую посылку в репозиторий.
      *
-     * @param pkg объект Package, который нужно добавить
+     * @param providedPackage объект Package, который нужно добавить
      * @throws IllegalArgumentException если посылка с таким именем уже существует
      */
-    public void addPackage(Package pkg) {
-        if (packages.containsKey(pkg.getName())) {
-            throw new IllegalArgumentException("Посылка с таким именем уже существует: " + pkg.getName());
+    public void addPackage(Package providedPackage) {
+        if (packages.containsKey(providedPackage.getName())) {
+            throw new PackageNameException("Посылка с таким именем уже существует: " + providedPackage.getName());
         }
-        packages.put(pkg.getName(), pkg);
+        packages.put(providedPackage.getName(), providedPackage);
     }
     /**
      * Ищет посылку по имени.
@@ -43,7 +44,7 @@ public class PackageRepository {
     public Optional<Package> findPackage(String name) {
         for (String key : packages.keySet()) {
             if (key.equalsIgnoreCase(name)) {
-                return Optional.of(packages.get(key)); // Оборачиваем найденный результат в Optional
+                return Optional.of(packages.get(key));
             }
         }
         return Optional.empty();
@@ -57,7 +58,7 @@ public class PackageRepository {
      */
     public void editPackage(String name, Package updatedPackage) {
         if (!packages.containsKey(name)) {
-            throw new IllegalArgumentException("Посылка не найдена: " + name);
+            throw new PackageNotFoundException("Посылка не найдена: " + name);
         }
         packages.put(name, updatedPackage);
     }
@@ -69,7 +70,7 @@ public class PackageRepository {
      */
     public void deletePackage(String name) {
         if (!packages.containsKey(name)) {
-            throw new IllegalArgumentException("Посылка не найдена: " + name);
+            throw new PackageNotFoundException("Посылка не найдена: " + name);
         }
         packages.remove(name);
     }
@@ -81,7 +82,7 @@ public class PackageRepository {
     public List<Package> getAllPackages() {
         return packages.values().stream()
                 .sorted(Comparator.comparing(Package::getName))
-                .collect(Collectors.toList());
+                .toList();
     }
     /**
      * Загружает предопределённые типы посылок в репозиторий.

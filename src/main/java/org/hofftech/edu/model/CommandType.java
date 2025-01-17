@@ -16,6 +16,6 @@ public enum CommandType {
     DELETE,
     LIST,
     LOAD,
-    UNLOAD;
+    UNLOAD
 }
 

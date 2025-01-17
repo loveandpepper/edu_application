@@ -1,4 +1,4 @@
-package org.hofftech.edu.util;
+package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,22 +14,22 @@ import java.util.Map;
  * Предоставляет методы для записи данных о посылках.
  */
 @Slf4j
-public final class FileSavingUtil {
+public final class FileSavingService {
     /**
      * Сохраняет данные о посылках в указанный файл.
      *
      * @param packages       список карт: каждая карта - имя посылки, а значение - количество.
      * @param outputFilePath путь к выходному файлу.
-     * @param withCount      если true, пишется имя посылки с количеством; иначе только имена посылок.
+     * @param isWithCount      если true, пишется имя посылки с количеством; иначе только имена посылок.
      * @throws IOException если произошла ошибка при записи в файл.
      */
-    public void savePackagesToFile(List<Map<String, Long>> packages, String outputFilePath, boolean withCount) throws IOException {
+    public void savePackagesToFile(List<Map<String, Long>> packages, String outputFilePath, boolean isWithCount) throws IOException {
         File outputFile = new File(outputFilePath);
-        log.info("Начинаем запись в файл {} количества: {}", outputFilePath, withCount ? "с подсчётом" : "без подсчёта");
+        log.info("Начинаем запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             for (Map<String, Long> map : packages) {
-                writePackageMapToFile(map, writer, withCount);
+                writePackageMapToFile(map, writer, isWithCount);
             }
         } catch (IOException e) {
             log.error("Ошибка записи в файл: {}", e.getMessage());

@@ -1,9 +1,8 @@
-package org.hofftech.edu.telegram;
+package org.hofftech.edu.controller;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.controller.TelegramController;
-import org.hofftech.edu.handler.impl.DefaultCommandHandler;
+import org.hofftech.edu.handler.CommandHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,30 +15,21 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
  */
 @Slf4j
 @Getter
-public class TelegramBotService extends TelegramLongPollingBot {
+public class TelegramBotController extends TelegramLongPollingBot {
     public static final String TOKEN = System.getenv("TELEGRAM_BOT_TOKEN");
-    private final TelegramAppender telegramAppender;
     public static final String BOT_NAME = System.getenv("TELEGRAM_BOT_NAME");
     private static final String PARSE_MODE = "MarkdownV2";
-    private final DefaultCommandHandler defaultCommandHandler;
-    private final TelegramController telegramController;
+    private final CommandHandler commandHandler;
 
     /**
      * Конструктор TelegramBotService.
      *
      * @param botToken         токен для авторизации бота
-     * @param defaultCommandHandler   обработчик команд
-     * @param telegramAppender аппендер для логов в Telegram
+     * @param commandHandler   обработчик команд
      */
-    public TelegramBotService(String botToken, DefaultCommandHandler defaultCommandHandler,
-                              TelegramAppender telegramAppender, TelegramController telegramController) {
+    public TelegramBotController(String botToken, CommandHandler commandHandler) {
         super(botToken);
-        this.defaultCommandHandler = defaultCommandHandler;
-        this.telegramAppender = telegramAppender;
-        this.telegramController = telegramController;
-        if (TOKEN == null || BOT_NAME == null) {
-            throw new RuntimeException("TOKEN или BOT_NAME не заданы в системных переменных.");
-        }
+        this.commandHandler = commandHandler;
     }
 
     /**
@@ -52,9 +42,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
             String message = update.getMessage().getText();
-            telegramAppender.setChatId(chatId.toString());
             try {
-                String response = telegramController.handleCommand(message);
+                String response = commandHandler.handle(message);
                 String markdownResponse = "```\n" + response + "\n```";
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(chatId.toString());

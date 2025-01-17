@@ -3,21 +3,20 @@ package org.hofftech.edu.config;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.controller.ConsoleController;
-import org.hofftech.edu.controller.TelegramController;
+import org.hofftech.edu.controller.TelegramBotController;
 import org.hofftech.edu.factory.commandprocessor.CommandProcessorFactory;
 import org.hofftech.edu.factory.packingstategy.PackingStrategyFactory;
-import org.hofftech.edu.handler.impl.DefaultCommandHandler;
+import org.hofftech.edu.handler.CommandHandler;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.CommandParser;
+import org.hofftech.edu.service.CommandTypeService;
 import org.hofftech.edu.service.FileProcessingService;
+import org.hofftech.edu.service.FileSavingService;
 import org.hofftech.edu.service.JsonProcessingService;
 import org.hofftech.edu.service.PackingService;
 import org.hofftech.edu.service.ParsingService;
 import org.hofftech.edu.service.TruckService;
 import org.hofftech.edu.service.ValidatorService;
-import org.hofftech.edu.telegram.TelegramAppender;
-import org.hofftech.edu.telegram.TelegramBotService;
-import org.hofftech.edu.util.FileSavingUtil;
 
 /**
   Контекст приложения, отвечает за создание и конфигурацию зависимостей.
@@ -26,8 +25,8 @@ import org.hofftech.edu.util.FileSavingUtil;
 @Getter
 @Slf4j
 public class ApplicationContext {
+
     private final ConsoleController consoleController;
-    private final TelegramController telegramController;
 
     public ApplicationContext() {
         log.info("Создаем зависимости...");
@@ -39,38 +38,33 @@ public class ApplicationContext {
         CommandProcessorFactory processorFactory = getCommandProcessorFactory(
                 validatorService, truckService, packageRepository
         );
-        CommandParser commandParser = new CommandParser();
-        DefaultCommandHandler commandHandler = new DefaultCommandHandler(processorFactory, commandParser);
+        CommandTypeService commandTypeService = new CommandTypeService();
+        CommandParser commandParser = new CommandParser(commandTypeService);
+        CommandHandler commandHandler = new CommandHandler(processorFactory, commandParser);
 
         this.consoleController = new ConsoleController(commandHandler);
-        this.telegramController = new TelegramController(commandHandler);
 
-        initializeTelegram(telegramController, commandHandler);
+        initializeTelegram(commandHandler);
     }
 
-    private static CommandProcessorFactory getCommandProcessorFactory(
+    private CommandProcessorFactory getCommandProcessorFactory(
             ValidatorService validatorService, TruckService truckService, PackageRepository packageRepository) {
         ParsingService parsingService = new ParsingService(packageRepository);
-        FileSavingUtil fileSavingUtil = new FileSavingUtil();
+        FileSavingService fileSavingService = new FileSavingService();
         PackingStrategyFactory packingStrategyFactory = new PackingStrategyFactory(truckService);
         JsonProcessingService jsonProcessingService = new JsonProcessingService();
         FileProcessingService fileProcessingService = new FileProcessingService(
                 parsingService, validatorService, truckService, jsonProcessingService, packingStrategyFactory);
-        return new CommandProcessorFactory(packageRepository, fileProcessingService, jsonProcessingService, fileSavingUtil, validatorService);
+        return new CommandProcessorFactory(packageRepository, fileProcessingService, jsonProcessingService, fileSavingService, validatorService);
     }
 
-    private void initializeTelegram(TelegramController telegramController, DefaultCommandHandler commandHandler) {
+    private void initializeTelegram(CommandHandler commandHandler) {
         try {
-            TelegramAppender telegramAppender = new TelegramAppender();
-            TelegramBotService telegramBotService = new TelegramBotService(
-                    TelegramBotService.TOKEN,
-                    commandHandler,
-                    telegramAppender,
-                    telegramController
+            TelegramBotController telegramBotController = new TelegramBotController(
+                    TelegramBotController.TOKEN,
+                    commandHandler
             );
-
-            telegramBotService.registerBot();
-            telegramAppender.initialize(telegramBotService);
+            telegramBotController.registerBot();
         } catch (Exception e) {
             log.error("Ошибка при запуске Telegram-бота: {}", e.getMessage(), e);
         }

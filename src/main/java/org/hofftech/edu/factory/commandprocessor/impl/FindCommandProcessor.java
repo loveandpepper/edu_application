@@ -1,29 +1,24 @@
 package org.hofftech.edu.factory.commandprocessor.impl;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.PackageNameException;
+import org.hofftech.edu.exception.PackageNotFoundException;
 import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 
-@RequiredArgsConstructor
-@Getter
-public class FindCommandProcessor implements CommandProcessor {
-    private final PackageRepository repository;
-    private String result;
+public record FindCommandProcessor(PackageRepository packageRepository) implements CommandProcessor {
 
     @Override
-    public void execute(ParsedCommand command) {
+    public String execute(ParsedCommand command) {
         String name = command.getName();
         if (name == null || name.isEmpty()) {
-            throw new RuntimeException("Имя посылки не указано");
+            throw new PackageNameException("Имя посылки не указано");
         }
 
-        repository.findPackage(name).ifPresentOrElse(
-                foundPackage -> result = "Найдена посылка: " + foundPackage,
-                () -> {
-                    result = "Посылка с именем '" + name + "' не найдена.";
-                }
-        );
+        return packageRepository.findPackage(name)
+                .map(foundPackage -> "Найдена посылка: " + foundPackage)
+                .orElseThrow(() -> new PackageNotFoundException(
+                        "Посылка с именем '" + name + "' не найдена."
+                ));
     }
 }

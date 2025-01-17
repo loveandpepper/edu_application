@@ -6,10 +6,6 @@
         </encoder>
     </appender>
 
-    <appender name="TELEGRAM" class="org.hofftech.edu.telegram.TelegramAppender">
-        <bot ref="telegramBot" />
-    </appender>
-
     <root level="info">
         <appender-ref ref="CONSOLE" />
     </root>

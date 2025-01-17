@@ -1,6 +1,6 @@
 package org.hofftech.edu.factory.packingstategy.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.factory.packingstategy.PackingStrategy;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
@@ -11,20 +11,21 @@ import java.util.List;
 /**
  * Реализация стратегии упаковки, предполагающей использование индивидуальных грузовиков для каждой посылки.
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class IndividualTruckStrategy implements PackingStrategy {
+
     private final TruckService truckService;
     /**
      * Размещает каждую посылку в индивидуальном грузовике.
      *
      * @param packages         список посылок для упаковки
-     * @param useEasyAlgorithm флаг использования упрощённого алгоритма
-     * @param useEvenAlgorithm флаг использования алгоритма равномерного распределения
+     * @param isEasyAlgorithm флаг использования упрощённого алгоритма
+     * @param isEvenAlgorithm флаг использования алгоритма равномерного распределения
      * @param trucksFromArgs   список размеров грузовиков, заданных пользователем
      * @return список грузовиков с размещёнными посылками
      */
     @Override
-    public List<Truck> addPackages(List<Package> packages, boolean useEasyAlgorithm, boolean useEvenAlgorithm, List<String> trucksFromArgs) {
+    public List<Truck> addPackages(List<Package> packages, boolean isEasyAlgorithm, boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         return truckService.addPackagesToIndividualTrucks(packages, trucksFromArgs);
     }
 }

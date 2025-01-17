@@ -12,13 +12,12 @@ import java.util.Scanner;
 @Slf4j
 @RequiredArgsConstructor
 public class ConsoleController {
-    /**
-     * Запускает цикл обработки пользовательских команд.
-     */
+
     private final CommandHandler commandHandler;
+    private final Scanner scanner = new Scanner(System.in);
 
     public void listen() {
-        try (Scanner scanner = new Scanner(System.in)) {
+        try (scanner) {
             log.info("Ожидание команды пользователя...");
             System.out.print("Введите команду: ");
 
@@ -26,9 +25,7 @@ public class ConsoleController {
                 String command = scanner.nextLine();
                 try {
                     String result = commandHandler.handle(command);
-                    if (result != null && !result.isEmpty()) {
-                        System.out.println(result);
-                    }
+                    System.out.println(result);
                 } catch (Exception e) {
                     log.error("Ошибка при выполнении команды: {}", e.getMessage());
                     System.out.println(e.getMessage());

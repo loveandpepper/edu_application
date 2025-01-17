@@ -2,11 +2,14 @@ package org.hofftech.edu.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.exception.PackageArgumentException;
+import org.hofftech.edu.exception.PackageNotFoundException;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.repository.PackageRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Сервис для разбора данных о посылках.
  * Обрабатывает строки из файла или аргументы командной строки и преобразует их в объекты Package.
@@ -51,7 +54,7 @@ public class ParsingService {
      */
     public List<Package> getPackagesFromArgs(String parcelsText) {
         if (parcelsText == null || parcelsText.isBlank()) {
-            throw new IllegalArgumentException("Аргумент с посылками пуст");
+            throw new PackageArgumentException("Аргумент с посылками пуст");
         }
         List<Package> packages = new ArrayList<>();
         String[] names = parcelsText.split(PARCELS_SPLITTER);
@@ -60,11 +63,14 @@ public class ParsingService {
             if (!trimmedName.isEmpty()) {
                 packageRepository.findPackage(trimmedName).ifPresentOrElse(
                         packages::add,
-                        () -> log.warn("Посылка '{}' из аргументов не найдена и будет пропущена.", trimmedName)
+                        () -> {
+                            throw new PackageNotFoundException(
+                                    "Посылка '" + trimmedName + "' из аргументов не найдена и не может быть обработана"
+                            );
+                        }
                 );
             }
         }
         return packages;
     }
-
 }

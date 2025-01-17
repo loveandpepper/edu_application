@@ -1,6 +1,6 @@
 package org.hofftech.edu.factory.packingstategy.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.factory.packingstategy.PackingStrategy;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
@@ -12,7 +12,7 @@ import java.util.List;
  * Реализация стратегии упаковки, предполагающей использование нескольких грузовиков.
  * Посылки размещаются в нескольких грузовиках, учитывая равномерное распределение или плотное размещение.
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MultipleTruckStrategy implements PackingStrategy {
     private final TruckService truckService;
 

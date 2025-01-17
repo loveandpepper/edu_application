@@ -13,28 +13,29 @@ import org.hofftech.edu.factory.commandprocessor.impl.UpdateCommandProcessor;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
+import org.hofftech.edu.service.FileSavingService;
 import org.hofftech.edu.service.JsonProcessingService;
 import org.hofftech.edu.service.ValidatorService;
-import org.hofftech.edu.util.FileSavingUtil;
 
 
 @RequiredArgsConstructor
 public class CommandProcessorFactory {
+
     private final PackageRepository repository;
     private final FileProcessingService fileProcessingService;
     private final JsonProcessingService jsonProcessingService;
-    private final FileSavingUtil fileSavingUtil;
+    private final FileSavingService fileSavingService;
     private final ValidatorService validatorService;
 
-    public CommandProcessor getProcessor(CommandType commandType) {
+    public CommandProcessor createProcessor(CommandType commandType) {
         return switch (commandType) {
             case CREATE -> new CreateCommandProcessor(repository, validatorService);
             case FIND -> new FindCommandProcessor(repository);
-            case UPDATE -> new UpdateCommandProcessor(repository);
+            case UPDATE -> new UpdateCommandProcessor(repository, validatorService);
             case DELETE -> new DeleteCommandProcessor(repository);
             case LIST -> new ListCommandProcessor(repository);
             case LOAD -> new LoadCommandProcessor(fileProcessingService);
-            case UNLOAD -> new UnloadCommandProcessor(jsonProcessingService, fileSavingUtil);
+            case UNLOAD -> new UnloadCommandProcessor(jsonProcessingService, fileSavingService);
             case START -> new StartCommandProcessor();
             case EXIT -> new ExitCommandProcessor();
         };

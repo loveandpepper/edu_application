@@ -36,7 +36,7 @@ public class FileProcessingService {
     public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
                               boolean useEasyAlg, boolean saveToFile, boolean useEvenAlg) {
         List<Package> packages = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
-        PackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
+        PackingStrategy strategy = packingStrategyFactory.createStrategy(useEasyAlg);
         List<Truck> trucks = strategy.addPackages(packages, useEasyAlg, useEvenAlg, trucksFromArgs);
 
         if (saveToFile) {
@@ -51,7 +51,7 @@ public class FileProcessingService {
         List<Package> packages = new ArrayList<>();
         if (parcelsFile != null) {
             List<String> lines = FileReaderService.readAllLines(parcelsFile);
-            validatorService.isValidFile(lines);
+            validatorService.validateFile(lines);
             packages = parseFileLines(parcelsFile, lines);
         } else if (parcelsText != null && !parcelsText.isEmpty()) {
             packages = fileParser.getPackagesFromArgs(parcelsText);
@@ -72,8 +72,7 @@ public class FileProcessingService {
             String result = jsonProcessingService.saveToJson(trucks);
             log.info("Данные успешно сохранены в JSON: {}", result);
         } catch (Exception e) {
-            log.error("Ошибка при сохранении данных в JSON: {}", e.getMessage(), e);
-            throw e;
+            throw new RuntimeException("Ошибка при сохранении данных в JSON: " + e.getMessage());
         }
     }
     /**

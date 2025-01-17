@@ -1,25 +1,20 @@
 package org.hofftech.edu.factory.commandprocessor.impl;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.PackageNameException;
 import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 
-@Getter
-@RequiredArgsConstructor
-public class DeleteCommandProcessor implements CommandProcessor {
-    private final PackageRepository repository;
-    private String result;
+public record DeleteCommandProcessor(PackageRepository packageRepository) implements CommandProcessor {
 
     @Override
-    public void execute(ParsedCommand command) {
+    public String execute(ParsedCommand command) {
         String name = command.getName();
         if (name == null || name.isEmpty()) {
-            throw new RuntimeException("Имя посылки не указано.");
+            throw new PackageNameException("Имя посылки не указано.");
         }
 
-        repository.deletePackage(name);
-        result = "Посылка '" + name + "' успешно удалена.";
+        packageRepository.deletePackage(name);
+        return "Посылка '" + name + "' успешно удалена.";
     }
 }
