@@ -1,38 +1,53 @@
 package org.hofftech.edu.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.model.Package;
+import org.hofftech.edu.model.Truck;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сервис для управления грузовиками и распределения посылок.
+ * Отвечает за размещение посылок в грузовиках и их визуализацию.
+ */
 @Slf4j
+@RequiredArgsConstructor
 public class TruckService {
+
+    private static final String TRUCK_SIZE_SPLITTER = "x";
+    private static final int FIRST_ROW_INDEX = 0;
+    private static final int FIRST_PART = 0;
+    private static final int SECOND_PART = 1;
     private final PackingService packingService;
 
-    public TruckService(PackingService packingService) {
-        this.packingService = packingService;
-    }
-
-    public List<Truck> addPackagesToMultipleTrucks(List<Package> packageList, int maxTrucks, Boolean evenAlg) {
+    /**
+     * Добавляет посылки в несколько грузовиков.
+     *
+     * @param packageList список посылок
+     * @param isEvenAlgorithm     флаг равномерного распределения посылок
+     * @param trucksFromArgs размеры грузовиков, переданные аргументом
+     * @return список грузовиков с размещёнными посылками
+     */
+    public List<Truck> addPackagesToMultipleTrucks(List<Package> packageList, Boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", packageList.size());
+        packageList.sort(null);
+        log.info("Упаковки отсортированы по высоте и ширине.");
 
-        sortPackages(packageList);
-        List<Truck> trucks;
+        List<Truck> trucks = new ArrayList<>();
 
-        if (!evenAlg) {
-            trucks = createTruck(1);
-            placePackages(packageList, trucks, maxTrucks);
-        }
-        else {
-            if (maxTrucks > 0 && maxTrucks != Integer.MAX_VALUE) {
-                trucks = createTruck(maxTrucks);
-                distributePackagesEvenly(packageList, trucks);
+        if (trucksFromArgs.isEmpty()) {
+            throw new IllegalArgumentException("Аргумент с грузовиками пуст, погрузка невозможна");
+        } else {
+            for (String providedTruckSize : trucksFromArgs) {
+                trucks.add(createTruck(providedTruckSize));
             }
-            else {
-                log.error("Если используется равномерный алгоритм, то необходимо указать кол-во грузовиков!");
-                throw new IllegalArgumentException("Не указано количество грузовиков");
+            if (!isEvenAlgorithm) {
+                placePackages(packageList, trucks);
+            } else {
+                distributePackagesEvenly(packageList, trucks);
             }
         }
 
@@ -40,134 +55,129 @@ public class TruckService {
         return trucks;
     }
 
-
+    /**
+     * Распределяет посылки равномерно между грузовиками.
+     *
+     * @param packages список посылок
+     * @param trucks   список грузовиков
+     * @throws IllegalArgumentException если список грузовиков пуст
+     */
     public void distributePackagesEvenly(List<Package> packages, List<Truck> trucks) {
         if (trucks.isEmpty()) {
-            log.error("Количество грузовиков не может быть нулевым.");
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
         }
-
         int totalPackages = packages.size();
         int numberOfTrucks = trucks.size();
-        int minPackagesPerTruck = totalPackages / numberOfTrucks;
-        int extraPackages = totalPackages % numberOfTrucks;
-
-        log.info("Распределяем {} посылок на {} грузовиков. Минимум в грузовике: {}, дополнительные посылки: {}",
-                totalPackages, numberOfTrucks, minPackagesPerTruck, extraPackages);
-
-        List<List<Package>> truckPackages = new ArrayList<>();
-        for (int i = 0; i < numberOfTrucks; i++) {
-            truckPackages.add(new ArrayList<>());
-        }
-
         int currentTruckIndex = 0;
-        for (Package pkg : packages) {
-            truckPackages.get(currentTruckIndex).add(pkg);
-            currentTruckIndex = (currentTruckIndex + 1) % numberOfTrucks; // Переходим к следующему грузовику
-        }
 
-        for (int i = 0; i < numberOfTrucks; i++) {
-            Truck truck = trucks.get(i);
-            List<Package> group = truckPackages.get(i);
+        log.info("Распределяем {} посылок на {} грузовиков.", totalPackages, numberOfTrucks);
 
-            log.info("Заполняем грузовик {} из группы {} посылок.", i + 1, group.size());
-            for (Package pkg : group) {
-                if (!packingService.addPackage(truck, pkg)) {
-                    log.error("Не удалось разместить посылку {} в грузовик {}.", pkg.getType(), i + 1);
-                    throw new RuntimeException("Не хватает указанного кол-ва грузовиков для размещения!");
+        for (Package nextPackage : packages) {
+            boolean isPlaced = false;
+            for (int i = FIRST_ROW_INDEX; i < numberOfTrucks; i++) {
+                Truck currentTruck = trucks.get((currentTruckIndex + i) % numberOfTrucks);
+                if (packingService.tryPack(currentTruck, nextPackage)) {
+                    log.info("Посылка {} успешно размещена в грузовике {}.", nextPackage.getName(), (currentTruckIndex + i) % numberOfTrucks + 1);
+                    isPlaced = true;
+                    currentTruckIndex = (currentTruckIndex + i + 1) % numberOfTrucks;
+                    break;
                 }
             }
+            if (!isPlaced) {
+                throw new RuntimeException("Не хватает указанных грузовиков для размещения!");
+            }
         }
-
         log.info("Все посылки успешно распределены по грузовикам.");
     }
 
 
+    private void placePackages(List<Package> packageList, List<Truck> trucks) {
+        for (Package providedPackage : packageList) {
+            log.info("Пытаемся разместить упаковку с ID {} и именем {}.", providedPackage.getName(), providedPackage.getName());
+            boolean isPlaced = false;
 
-    private void placePackages(List<Package> packageList, List<Truck> trucks, int maxTrucks) {
-        for (Package pkg : packageList) {
-            log.info("Пытаемся разместить упаковку {} с ID {}", pkg.getType(), pkg.getId());
-            boolean placed = false;
             for (Truck truck : trucks) {
-                if (packingService.addPackage(truck, pkg)) {
-                    log.info("Упаковка {} с ID {} успешно размещена в существующем грузовике.", pkg.getType(), pkg.getId());
-                    placed = true;
+                if (packingService.tryPack(truck, providedPackage)) {
+                    log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", providedPackage.getName());
+                    isPlaced = true;
                     break;
                 }
             }
+            if (!isPlaced) {
+                log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", providedPackage.getName());
 
-            if (!placed) {
-                log.info("Упаковка {} с ID {} не поместилась. Создаём новый грузовик.", pkg.getType(), pkg.getId());
-                if (trucks.size() < maxTrucks) {
-                    Truck newTruck = new Truck();
-                    if (packingService.addPackage(newTruck, pkg)) {
-                        trucks.add(newTruck);
-                        log.info("Упаковка {} с ID {} размещена в новом грузовике.", pkg.getType(), pkg.getId());
-                    } else {
-                        log.error("Ошибка: упаковка {} с ID {} не может быть размещена даже в новом грузовике.", pkg.getType(), pkg.getId());
+                for (Truck truck : trucks) {
+                    if (packingService.tryPack(truck, providedPackage)) {
+                        log.info("Упаковка с ID {} размещена после повторной проверки.", providedPackage.getName());
+                        break;
                     }
                 }
-                else {
-                    log.error("Превышен установленный лимит грузовиков!");
-                    throw new RuntimeException("Превышен лимит грузовиков: " + maxTrucks);
-                }
             }
         }
     }
 
-    private static List<Truck> createTruck(int countOfTrucks) {
-        List<Truck> trucks = new ArrayList<>();
-        Truck currentTruck = new Truck();
-        trucks.add(currentTruck);
-        if (countOfTrucks > 1) {
-            for (int i = trucks.size(); i < countOfTrucks; i++) {
-                trucks.add(new Truck());
-            }
-        }
-        log.info("Создан первый грузовик.");
-        return trucks;
+    private Truck createTruck(String providedTruckSize) {
+        String[] splitSize = providedTruckSize.split(TRUCK_SIZE_SPLITTER);
+        Truck currentTruck = new Truck(Integer.parseInt(splitSize[FIRST_PART].trim()), Integer.parseInt(splitSize[SECOND_PART].trim()));
+        log.info("Создан грузовик размером {}x{}.", splitSize[0].trim(), splitSize[1].trim());
+        return currentTruck;
     }
 
-    private static void sortPackages(List<Package> packageList) {
-        packageList.sort((a, b) -> {
-            int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
-            if (heightDiff == 0) {
-                return Integer.compare(b.getType().getWidth(), a.getType().getWidth());
-            }
-            return heightDiff;
-        });
-        log.info("Упаковки отсортированы по высоте и ширине.");
-    }
 
-    public void printTrucks(List<Truck> trucks) {
-        log.info("Начало вывода состояния всех грузовиков. Всего грузовиков: {}", trucks.size());
+    /**
+     * Печатает состояние всех грузовиков.
+     *
+     * @param trucks список грузовиков
+     */
+    @SneakyThrows
+    public String printTrucks(List<Truck> trucks) {
+        log.info("Начало формирования состояния всех грузовиков. Всего грузовиков: {}", trucks.size());
+        StringBuilder result = new StringBuilder();
         int truckNumber = 1;
+
         for (Truck truck : trucks) {
-            System.out.printf("Truck %d%n", truckNumber);
-            printTruck(truck);
+            result.append("Truck ").append(truckNumber).append("\n")
+                    .append(truck.getWidth()).append("x").append(truck.getHeight()).append("\n");
+            result.append(getTruckRepresentation(truck)).append("\n");
             truckNumber++;
         }
-        log.info("Вывод завершён.");
+
+        return result.toString();
     }
 
-    private void printTruck(Truck truck) {
-        for (int y = truck.getHEIGHT() - 1; y >= 0; y--) {
-            System.out.print("+");
-            for (int x = 0; x < truck.getWIDTH(); x++) {
-                System.out.print(truck.getGrid()[y][x]);
+    private String getTruckRepresentation(Truck truck) {
+        StringBuilder truckRepresentation = new StringBuilder();
+        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
+
+        for (int y = truck.getHeight() - 1; y >= 0; y--) {
+            truckRepresentation.append("+");
+            for (int x = 0; x < truck.getWidth(); x++) {
+                char cell = truck.getGrid()[y][x];
+                truckRepresentation.append(cell == '\0' ? ' ' : cell);
             }
-            System.out.println("+");
+            truckRepresentation.append("+\n");
         }
-        System.out.println("++++++++" + "\n");
+        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
+
+        return truckRepresentation.toString();
     }
 
-    public List<Truck> addPackagesToIndividualTrucks(List<Package> packages) {
+    /**
+     * Добавляет каждую посылку в индивидуальный грузовик.
+     *
+     * @param packages список посылок
+     * @param providedTrucks размеры грузовиков, переданные аргументом
+     * @return список грузовиков с размещёнными посылками
+     */
+    public List<Truck> addPackagesToIndividualTrucks(List<Package> packages, List<String> providedTrucks) {
         List<Truck> trucks = new ArrayList<>();
+        int truckIndex = 0;
+
         for (Package pkg : packages) {
-            Truck truck = new Truck();
-            packingService.addPackage(truck, pkg);
+            Truck truck = createTruck(providedTrucks.get(truckIndex));
+            truckIndex++;
+            packingService.tryPack(truck, pkg);
             trucks.add(truck);
-            log.info("Упаковка {} добавлена в новый грузовик.", pkg.getId());
         }
         return trucks;
     }

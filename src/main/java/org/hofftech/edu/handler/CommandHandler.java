@@ -1,16 +1,43 @@
 package org.hofftech.edu.handler;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
+import org.hofftech.edu.factory.commandprocessor.CommandProcessorFactory;
+import org.hofftech.edu.model.ParsedCommand;
+import org.hofftech.edu.service.CommandParser;
+
 /**
- * Интерфейс для обработки команд.
- * <p>
- * Реализации этого интерфейса обрабатывают команды, переданные в виде String
- * (парсинг команды, валидация, вызов логики, за которую отвечает команда)
+ * Класс для обработки команд.
+ * Определяет метод для обработки пользовательских запросов.
  */
-public interface CommandHandler {
+@Slf4j
+@RequiredArgsConstructor
+
+public class CommandHandler {
+
+    private final CommandProcessorFactory processorFactory;
+    private final CommandParser commandParser;
+    @Getter
+    private CommandProcessor currentProcessor;
+
     /**
-     * Обрабатывает переданную команду.
+     * Обрабатывает команду и возвращает результат выполнения.
      *
-     * @param command команда для обработки в виде строки
+     * @param command строка команды
+     * @return результат выполнения команды
      */
-    void handle(String command);
+    public String handle(String command) {
+        ParsedCommand parsedCommand = commandParser.parse(command);
+        currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
+
+        if (currentProcessor != null) {
+            return currentProcessor.execute(parsedCommand);
+        } else {
+            throw new IllegalArgumentException("Процессор для команды не найден: " + parsedCommand.getCommandType());
+        }
+    }
+
 }
+

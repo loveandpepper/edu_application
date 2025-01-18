@@ -14,11 +14,12 @@ ext {
             commonsCollections: '4.4',
             jackson: '2.15.2',
             lombok: '1.18.30',
-            logback: '1.4.12',
+            logback: '1.5.16',
             slf4j: '2.0.9',
             junitBom: '5.10.0',
             assertj: '3.23.1',
-            mockito: '5.5.0'
+            mockito: '5.5.0',
+            telegram: '6.9.7.1'
     ]
 }
 
@@ -27,6 +28,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
     implementation "ch.qos.logback:logback-classic:${versions.logback}"
     implementation "org.slf4j:slf4j-api:${versions.slf4j}"
+    implementation "org.telegram:telegrambots:${versions.telegram}"
+
 
     compileOnly "org.projectlombok:lombok:${versions.lombok}"
     annotationProcessor "org.projectlombok:lombok:${versions.lombok}"

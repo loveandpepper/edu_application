@@ -1,106 +1,76 @@
 package org.hofftech.edu.service;
 
-import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
+import org.hofftech.edu.factory.packingstategy.PackingStrategy;
+import org.hofftech.edu.factory.packingstategy.PackingStrategyFactory;
 import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.PackageStartPosition;
-import org.hofftech.edu.model.PackageType;
 import org.hofftech.edu.model.Truck;
-import org.hofftech.edu.service.packingstategy.PackingStrategyFactory;
-import org.hofftech.edu.util.FileReaderUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.nio.file.Path;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.eq;
-
-
 
 class FileProcessingServiceTest {
 
-    private FileParsingService fileParser;
-    private ValidatorService validatorService;
-    private TruckService truckService;
-    private JsonProcessingService jsonProcessingService;
     private FileProcessingService fileProcessingService;
-    private PackingStrategyFactory packingStrategyFactory;
-
+    private ParsingService parsingServiceMock;
+    private ValidatorService validatorServiceMock;
+    private TruckService truckServiceMock;
+    private JsonProcessingService jsonProcessingServiceMock;
+    private PackingStrategyFactory packingStrategyFactoryMock;
 
     @BeforeEach
     void setUp() {
-        fileParser = mock(FileParsingService.class);
-        validatorService = mock(ValidatorService.class);
-        truckService = mock(TruckService.class);
-        jsonProcessingService = mock(JsonProcessingService.class);
+        parsingServiceMock = Mockito.mock(ParsingService.class);
+        validatorServiceMock = Mockito.mock(ValidatorService.class);
+        truckServiceMock = Mockito.mock(TruckService.class);
+        jsonProcessingServiceMock = Mockito.mock(JsonProcessingService.class);
+        packingStrategyFactoryMock = Mockito.mock(PackingStrategyFactory.class);
 
         fileProcessingService = new FileProcessingService(
-                fileParser, validatorService, truckService, jsonProcessingService, packingStrategyFactory
+                parsingServiceMock,
+                validatorServiceMock,
+                truckServiceMock,
+                jsonProcessingServiceMock,
+                packingStrategyFactoryMock
         );
     }
 
-    @SneakyThrows
     @Test
-    void processFile_givenValidInput_shouldProcessSuccessfully() {
-        // Arrange
-        Path filePath = Path.of("valid-file.txt");
-        List<String> fileLines = List.of("line1", "line2");
-        Package testPackage = new Package(PackageType.TWO, 1, new PackageStartPosition(0, 0));
-        List<Package> packages = List.of(testPackage);
-        Truck truck = new Truck();
-        List<Truck> trucks = List.of(truck);
+    void shouldProcessArgumentsSuccessfully() {
+        String parcelsText = "Посылка Тип 4, Посылка Тип 3";
+        List<String> trucksFromArgs = List.of("6x6");
+        PackingStrategy packingStrategyMock = Mockito.mock(PackingStrategy.class);
 
-        when(FileReaderUtil.readAllLines(filePath)).thenReturn(fileLines);
-        when(validatorService.isValidFile(fileLines)).thenReturn(true);
-        when(fileParser.parsePackages(fileLines)).thenReturn(packages);
-        when(validatorService.isValidPackages(packages)).thenReturn(true);
-        when(truckService.addPackagesToMultipleTrucks(eq(packages), anyInt(), anyBoolean())).thenReturn(trucks);
+        Mockito.when(parsingServiceMock.getPackagesFromArgs(parcelsText))
+                .thenReturn(List.of(new Package("Посылка Тип 4", null, '4', null),
+                        new Package("Посылка Тип 3", null, '3', null)));
+        Mockito.when(packingStrategyFactoryMock.createStrategy(false))
+                .thenReturn(packingStrategyMock);
+        Mockito.when(packingStrategyMock.addPackages(Mockito.anyList(), Mockito.anyBoolean(), Mockito.anyBoolean(),
+                        Mockito.anyList()))
+                .thenReturn(List.of(new Truck(6, 6)));
+        Mockito.when(truckServiceMock.printTrucks(Mockito.anyList()))
+                .thenReturn("Truck output");
 
-        // Act
-        fileProcessingService.processFile(filePath, false, true, 10, false);
+        String result = fileProcessingService.processFile(null, parcelsText, trucksFromArgs, false,
+                false, false);
 
-        // Assert
-        verify (FileReaderUtil.readAllLines(filePath));
-        verify(validatorService).isValidFile(fileLines);
-        verify(fileParser).parsePackages(fileLines);
-        verify(validatorService).isValidPackages(packages);
-        verify(truckService).addPackagesToMultipleTrucks(packages, 10, false);
-        verify(jsonProcessingService).saveToJson(trucks);
+        Assertions.assertThat(result).isEqualTo("Truck output");
     }
 
     @Test
-    void saveTrucksToJson_shouldCallJsonProcessingService() {
-        // Arrange
-        Truck truck = new Truck();
-        List<Truck> trucks = List.of(truck);
+    void shouldThrowExceptionForEmptyPackages() {
+        String parcelsText = "";
 
-        // Act
-        fileProcessingService.saveTrucksToJson(trucks);
+        Mockito.when(parsingServiceMock.getPackagesFromArgs(parcelsText))
+                .thenReturn(List.of());
 
-        // Assert
-        verify(jsonProcessingService).saveToJson(trucks);
-    }
-
-    @Test
-    void parseFileLines_givenEmptyLines_shouldLogWarning() {
-        // Arrange
-        Path filePath = Path.of("empty.txt");
-        List<String> fileLines = List.of();
-
-        when(fileParser.parsePackages(fileLines)).thenReturn(List.of());
-
-        // Act
-        List<Package> result = fileProcessingService.parseFileLines(filePath, fileLines);
-
-        // Assert
-        assertThat(result).isEmpty();
-        verify(fileParser).parsePackages(fileLines);
+        Assertions.assertThatThrownBy(() -> fileProcessingService.processFile(null, parcelsText, List.of(),
+                        false, false, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Упаковки не представлены, продолжение работы невозможно");
     }
 }
+

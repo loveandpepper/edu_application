@@ -1,4 +1,5 @@
 package org.hofftech.edu;
+
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.config.ApplicationContext;
 
@@ -8,6 +9,11 @@ import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class Main {
+    /**
+     * Точка входа в приложение.
+     *
+     * @param args аргументы командной строки
+     */
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         log.info("Приложение запускается...");
