@@ -1,7 +1,7 @@
-package org.hofftech.edu.factory.commandprocessor.impl;
+package org.hofftech.edu.service.commandprocessor.impl;
 
-import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
 import org.hofftech.edu.model.ParsedCommand;
+import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
 public class ExitCommandProcessor implements CommandProcessor {
 

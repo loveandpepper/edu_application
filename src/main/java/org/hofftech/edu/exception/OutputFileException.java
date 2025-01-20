@@ -1,7 +1,7 @@
 package org.hofftech.edu.exception;
 
 /**
- * Исключение, выбрасываемое, если не удается создать посылку.
+ * Исключение при работе с выходным файлом
  */
 public class OutputFileException extends RuntimeException {
 

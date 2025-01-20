@@ -20,7 +20,7 @@ class CommandParserTest {
 
     @Test
     void shouldParseValidCommand() {
-        String command = "/load -name \"package1\" -form \"***,***\"";
+        String command = "/load +name \"package1\" +form \"***,***\"";
         Mockito.when(commandTypeServiceMock.determineCommandType("LOAD"))
                 .thenReturn(CommandType.LOAD);
 
@@ -34,7 +34,7 @@ class CommandParserTest {
 
     @Test
     void shouldThrowExceptionForInvalidCommandType() {
-        String command = "/invalid -name \"package1\"";
+        String command = "/invalid +name \"package1\"";
         Mockito.when(commandTypeServiceMock.determineCommandType("INVALID"))
                 .thenThrow(new IllegalArgumentException("Неизвестная команда: INVALID"));
 
@@ -45,7 +45,7 @@ class CommandParserTest {
 
     @Test
     void shouldExtractParametersCorrectly() {
-        String command = "-name \"package1\" -form \"***,***\"";
+        String command = "+name \"package1\" +form \"***,***\"";
 
         ParsedCommand parsedCommand = commandParser.parse(command);
 

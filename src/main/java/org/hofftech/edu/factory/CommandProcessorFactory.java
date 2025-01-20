@@ -1,21 +1,24 @@
-package org.hofftech.edu.factory.commandprocessor;
+package org.hofftech.edu.factory;
 
 import lombok.RequiredArgsConstructor;
-import org.hofftech.edu.factory.commandprocessor.impl.CreateCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.DeleteCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.ExitCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.FindCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.ListCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.LoadCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.StartCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.UnloadCommandProcessor;
-import org.hofftech.edu.factory.commandprocessor.impl.UpdateCommandProcessor;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
 import org.hofftech.edu.service.FileSavingService;
 import org.hofftech.edu.service.JsonProcessingService;
+import org.hofftech.edu.service.OrderManagerService;
 import org.hofftech.edu.service.ValidatorService;
+import org.hofftech.edu.service.commandprocessor.CommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.BillingCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.CreateCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.DeleteCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.ExitCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.FindCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.ListCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.LoadCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.StartCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.UnloadCommandProcessor;
+import org.hofftech.edu.service.commandprocessor.impl.UpdateCommandProcessor;
 
 
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class CommandProcessorFactory {
     private final JsonProcessingService jsonProcessingService;
     private final FileSavingService fileSavingService;
     private final ValidatorService validatorService;
+    private final OrderManagerService orderManagerService;
 
     public CommandProcessor createProcessor(CommandType commandType) {
         return switch (commandType) {
@@ -36,6 +40,7 @@ public class CommandProcessorFactory {
             case LIST -> new ListCommandProcessor(repository);
             case LOAD -> new LoadCommandProcessor(fileProcessingService);
             case UNLOAD -> new UnloadCommandProcessor(jsonProcessingService, fileSavingService);
+            case BILLING -> new BillingCommandProcessor(orderManagerService);
             case START -> new StartCommandProcessor();
             case EXIT -> new ExitCommandProcessor();
         };

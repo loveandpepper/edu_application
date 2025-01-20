@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.exception.InputFileException;
+import org.hofftech.edu.model.Order;
+import org.hofftech.edu.model.OrderOperationType;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.Truck;
@@ -15,6 +17,7 @@ import org.hofftech.edu.model.dto.TruckDto;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,8 +36,10 @@ public class JsonProcessingService {
     private static final int TRUCK_NAME_INDEX = 1;
     private static final String TRUCK_SIZE_SPLITTER = "x";
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final OrderManagerService orderManagerService;
 
-    public JsonProcessingService() {
+    public JsonProcessingService(OrderManagerService orderManagerService) {
+        this.orderManagerService = orderManagerService;
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
     /**
@@ -62,7 +67,7 @@ public class JsonProcessingService {
         }
     }
 
-    private static PackageStartPosition getPackageStartPosition(PackageDto packageDto, PackageStartPosition position) {
+    private PackageStartPosition getPackageStartPosition(PackageDto packageDto, PackageStartPosition position) {
         if (packageDto.getStartPosition() != null) {
             position = new PackageStartPosition(
                     packageDto.getStartPosition().getX(),
@@ -80,7 +85,7 @@ public class JsonProcessingService {
      * @return карта, где ключ — имя посылки, а значение — количество (или 1, если isWithCount == false)
      */
     @SneakyThrows
-    public List<Map<String, Long>> importPackagesFromJson(String jsonFilePath, boolean isWithCount) {
+    public List<Map<String, Long>> importPackagesFromJson(String jsonFilePath, boolean isWithCount, String user) {
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
             throw new InputFileException("Файл не найден: " + jsonFilePath);
@@ -101,11 +106,26 @@ public class JsonProcessingService {
             extractPackagesFromTruck(truck, packages);
         }
 
+        addUnloadOrder(trucks, packages, user);
+
         if (isWithCount) {
             return groupPackagesWithCount(packages);
         } else {
             return getIndividualPackages(packages);
         }
+    }
+
+    public void addUnloadOrder(List<TruckDto> trucks, List<Package> packages, String userId) {
+        Order order = new Order(
+                userId,
+                LocalDate.now(),
+                OrderOperationType.UNLOAD,
+                trucks.size(),
+                packages
+        );
+
+        orderManagerService.addOrder(order);
+        log.info("Добавлен заказ на рагрузку для {}", userId);
     }
 
     private List<Map<String, Long>> getIndividualPackages(List<Package> packages) {
@@ -150,20 +170,20 @@ public class JsonProcessingService {
         return new TruckDto(truckIndex + TRUCK_NAME_INDEX, truck.getWidth() + TRUCK_SIZE_SPLITTER + truck.getHeight(), packageDtos);
     }
 
-    private PackageDto convertToPackageDto(Package pkg) {
+    private PackageDto convertToPackageDto(Package providedPackage) {
         PackageDto packageDto = new PackageDto();
-        packageDto.setName(pkg.getName());
-        packageDto.setShape(pkg.getReversedShape());
-        packageDto.setSymbol(pkg.getSymbol());
+        packageDto.setName(providedPackage.getName());
+        packageDto.setShape(providedPackage.getReversedShape());
+        packageDto.setSymbol(providedPackage.getSymbol());
 
-        PackageStartPosition position = pkg.getPackageStartPosition();
+        PackageStartPosition position = providedPackage.getPackageStartPosition();
         if (position != null) {
-            PositionDto positionDto = new PackageDto().getStartPosition();
+            PositionDto positionDto = new PositionDto();
             positionDto.setX(position.x() + ADJUSTING_FOR_START_POSITION);
             positionDto.setY(position.y() + ADJUSTING_FOR_START_POSITION);
             packageDto.setStartPosition(positionDto);
         } else {
-            throw new RuntimeException("Отсутствует стартовая позиция у посылки " + pkg.getName());
+            throw new RuntimeException("Отсутствует стартовая позиция у посылки " + providedPackage.getName());
         }
 
         return packageDto;

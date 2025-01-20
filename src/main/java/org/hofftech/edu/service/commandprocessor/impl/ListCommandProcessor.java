@@ -1,13 +1,17 @@
-package org.hofftech.edu.factory.commandprocessor.impl;
+package org.hofftech.edu.service.commandprocessor.impl;
 
-import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
+import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
 import java.util.List;
 
-public record ListCommandProcessor(PackageRepository packageRepository) implements CommandProcessor {
+@RequiredArgsConstructor
+public class ListCommandProcessor implements CommandProcessor {
+
+    private final PackageRepository packageRepository;
 
     @Override
     public String execute(ParsedCommand command) {

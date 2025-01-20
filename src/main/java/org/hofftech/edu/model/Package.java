@@ -31,6 +31,12 @@ public class Package implements Comparable<Package> {
         return shape.size();
     }
 
+    /**
+     * Обновляет символ упаковки на новый.
+     * Также заменяет старый символ на новый во всех строках формы упаковки.
+     *
+     * @param newSymbol новый символ для упаковки.
+     */
     public void updateSymbol(char newSymbol) {
         if (shape == null || shape.isEmpty()) {
             return;
@@ -45,13 +51,27 @@ public class Package implements Comparable<Package> {
         this.symbol = newSymbol;
     }
 
+    /**
+     * Возвращает перевёрнутую форму упаковки.
+     * Формирует новый список строк, в котором порядок строк обратный оригиналу.
+     *
+     * @return перевёрнутая форма упаковки.
+     */
     public List<String> getReversedShape() {
         List<String> reversedShape = new ArrayList<>(this.shape);
         Collections.reverse(reversedShape);
         return reversedShape;
     }
 
-
+    /**
+     * Сравнивает текущую упаковку с другой по высоте, а затем по ширине.
+     * Упаковка с большей высотой считается больше.
+     * Если высоты равны, сравнение проводится по ширине.
+     *
+     * @param other другая упаковка для сравнения.
+     * @return отрицательное число, ноль или положительное число,
+     * в зависимости от порядка текущей упаковки относительно другой.
+     */
     @Override
     public int compareTo(Package other) {
         int heightDiff = Integer.compare(other.getHeight(), this.getHeight());

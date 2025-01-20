@@ -1,10 +1,10 @@
-package org.hofftech.edu.factory.packingstategy.impl;
+package org.hofftech.edu.service.packingstategy.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hofftech.edu.factory.packingstategy.PackingStrategy;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.service.TruckService;
+import org.hofftech.edu.service.packingstategy.PackingStrategy;
 
 import java.util.List;
 
