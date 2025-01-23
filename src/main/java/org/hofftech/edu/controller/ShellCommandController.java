@@ -2,9 +2,7 @@ package org.hofftech.edu.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.factory.CommandProcessorFactory;
-import org.hofftech.edu.model.ParsedCommand;
-import org.hofftech.edu.service.CommandParser;
+import org.hofftech.edu.handler.CommandHandler;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -17,8 +15,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class ShellCommandController {
 
-    private final CommandProcessorFactory processorFactory;
-    private final CommandParser commandParser;
+    private final CommandHandler commandHandler;
 
     @ShellMethod("Стартовая команда")
     public String start() {
@@ -33,52 +30,42 @@ public class ShellCommandController {
 
     @ShellMethod("Поиск посылки")
     public String find(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("find " + args);
+        return commandHandler.handle("find " + args);
     }
 
     @ShellMethod("Создание новой посылки")
     public String create(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("create " + args);
+        return commandHandler.handle("create " + args);
     }
 
     @ShellMethod("Обновление существующей посылки")
     public String update(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("update " + args);
+        return commandHandler.handle("update " + args);
     }
 
     @ShellMethod("Удаление посылки")
     public String delete(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("delete " + args);
+        return commandHandler.handle("delete " + args);
     }
 
     @ShellMethod("Список всех посылок")
     public String list() {
-        return handleCommand("list");
+        return commandHandler.handle("list");
     }
 
     @ShellMethod("Погрузка")
     public String load(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("load " + args);
+        return commandHandler.handle("load " + args);
     }
 
     @ShellMethod("Разгрузка")
     public String unload(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("unload " + args);
+        return commandHandler.handle("unload " + args);
     }
 
     @ShellMethod("Генерация отчета биллинга")
     public String billing(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("billing " + args);
+        return commandHandler.handle("billing " + args);
     }
 
-    private String handleCommand(String command) {
-        try {
-            ParsedCommand parsedCommand = commandParser.parse(command);
-            return processorFactory.createProcessor(parsedCommand.getCommandType())
-                    .execute(parsedCommand);
-        } catch (Exception e) {
-            log.error("Ошибка обработки команды: {}", e.getMessage(), e);
-            return "Ошибка: " + e.getMessage();
-        }
-    }
 }

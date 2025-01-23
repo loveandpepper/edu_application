@@ -13,7 +13,6 @@ repositories {
 
 // Объявление версий через extra
 val versions = mapOf(
-    "commonsCollections" to "4.4",
     "jackson" to "2.15.2",
     "lombok" to "1.18.30",
     "logback" to "1.4.12",
@@ -26,7 +25,6 @@ val versions = mapOf(
 )
 
 dependencies {
-    implementation("org.apache.commons:commons-collections4:${versions["commonsCollections"]}")
     implementation("com.fasterxml.jackson.core:jackson-databind:${versions["jackson"]}")
     implementation("ch.qos.logback:logback-classic:${versions["logback"]}")
     implementation("org.slf4j:slf4j-api:${versions["slf4j"]}")

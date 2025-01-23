@@ -1,8 +1,11 @@
 package org.hofftech.edu.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hofftech.edu.controller.TelegramBotController;
 import org.hofftech.edu.factory.CommandProcessorFactory;
 import org.hofftech.edu.factory.PackingStrategyFactory;
+import org.hofftech.edu.handler.CommandHandler;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.CommandParser;
 import org.hofftech.edu.service.CommandTypeService;
@@ -17,6 +20,8 @@ import org.hofftech.edu.service.ValidatorService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Clock;
 
 /**
  * Контекст приложения, отвечает за создание и конфигурацию зависимостей.
@@ -63,8 +68,19 @@ public class SpringConfig {
     }
 
     @Bean
-    public JsonProcessingService jsonProcessingService(OrderManagerService orderManagerService) {
-        return new JsonProcessingService(orderManagerService);
+    public Clock clock() {
+        return Clock.systemDefaultZone();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
+    @Bean
+    public JsonProcessingService jsonProcessingService(ObjectMapper objectMapper,
+                                                       OrderManagerService orderManagerService, Clock clock) {
+        return new JsonProcessingService(objectMapper, clock, orderManagerService);
     }
 
     @Bean
@@ -74,10 +90,11 @@ public class SpringConfig {
             TruckService truckService,
             JsonProcessingService jsonProcessingService,
             PackingStrategyFactory packingStrategyFactory,
-            OrderManagerService orderManagerService) {
+            OrderManagerService orderManagerService,
+            Clock clock) {
         return new FileProcessingService(
                 parsingService, validatorService, truckService,
-                jsonProcessingService, packingStrategyFactory, orderManagerService);
+                jsonProcessingService, packingStrategyFactory, orderManagerService, clock);
     }
 
     @Bean
@@ -122,6 +139,14 @@ public class SpringConfig {
         }
         return botController;
     }
+
+    @Bean
+    public CommandHandler commandHandler(
+            CommandParser commandParser,
+            CommandProcessorFactory commandProcessorFactory) {
+        return new CommandHandler(commandProcessorFactory, commandParser);
+    }
+
 }
 
 

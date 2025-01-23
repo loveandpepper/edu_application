@@ -10,6 +10,7 @@ import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.service.packingstategy.PackingStrategy;
 
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class FileProcessingService {
     private final JsonProcessingService jsonProcessingService;
     private final PackingStrategyFactory packingStrategyFactory;
     private final OrderManagerService orderManagerService;
+    private final Clock clock;
     /**
      * Обрабатывает файл с посылками и параметры командной строки, выполняя упаковку в грузовики.
      *
@@ -67,7 +69,7 @@ public class FileProcessingService {
 
         Order order = new Order(
                 userId,
-                LocalDate.now(),
+                LocalDate.ofInstant(clock.instant(), clock.getZone()),
                 OrderOperationType.LOAD,
                 truckCount,
                 allPackages

@@ -2,7 +2,7 @@ package org.hofftech.edu.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.exception.InputFileException;
@@ -17,6 +17,7 @@ import org.hofftech.edu.model.dto.TruckDto;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,20 +29,18 @@ import java.util.stream.Collectors;
  * Отвечает за сохранение и загрузку данных о грузовиках и посылках в формате JSON.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class JsonProcessingService {
+
     private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "trucks.json";
     private static final String TRUCKS_ARRAY = "trucks";
     private static final int ADJUSTING_FOR_START_POSITION = 1;
     private static final int TRUCK_NAME_INDEX = 1;
     private static final String TRUCK_SIZE_SPLITTER = "x";
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private final Clock clock;
     private final OrderManagerService orderManagerService;
-
-    public JsonProcessingService(OrderManagerService orderManagerService) {
-        this.orderManagerService = orderManagerService;
-        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    }
     /**
      * Сохраняет данные о грузовиках в JSON-файл и возвращает строковое представление JSON.
      *
@@ -57,8 +56,8 @@ public class JsonProcessingService {
         }
 
         try {
-            String jsonString = objectMapper.writeValueAsString(Map.of("trucks", trucksData));
-            objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
+            String jsonString = objectMapper.writeValueAsString(Map.of(TRUCKS_ARRAY, trucksData));
+            objectMapper.writeValue(outputFile, Map.of(TRUCKS_ARRAY, trucksData));
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
@@ -118,7 +117,7 @@ public class JsonProcessingService {
     public void addUnloadOrder(List<TruckDto> trucks, List<Package> packages, String userId) {
         Order order = new Order(
                 userId,
-                LocalDate.now(),
+                LocalDate.ofInstant(clock.instant(), clock.getZone()),
                 OrderOperationType.UNLOAD,
                 trucks.size(),
                 packages

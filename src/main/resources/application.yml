@@ -1,7 +1,7 @@
 telegram:
   bot:
-    token: "7650285239:AAErFmH9TqHJ_0UbpPd0MzQDBL0DjK6CxEY"
-    name: "java_edu_project_bot"
+    token: ${TELEGRAM_BOT_TOKEN}
+    name: ${TELEGRAM_BOT_NAME}
 
 spring:
   shell:
