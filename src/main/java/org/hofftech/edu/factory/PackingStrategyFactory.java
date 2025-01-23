@@ -1,9 +1,10 @@
-package org.hofftech.edu.factory.packingstategy;
+package org.hofftech.edu.factory;
 
 import lombok.AllArgsConstructor;
-import org.hofftech.edu.factory.packingstategy.impl.IndividualTruckStrategy;
-import org.hofftech.edu.factory.packingstategy.impl.MultipleTruckStrategy;
 import org.hofftech.edu.service.TruckService;
+import org.hofftech.edu.service.packingstategy.PackingStrategy;
+import org.hofftech.edu.service.packingstategy.impl.IndividualTruckStrategy;
+import org.hofftech.edu.service.packingstategy.impl.MultipleTruckStrategy;
 
 /**
  * Фабрика для создания стратегий упаковки.

@@ -13,9 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Order {
 
+    private static final int LOAD_COST = 80;
+    private static final int UNLOAD_COST = 50;
     private String userId;
     private LocalDate date;
-    private OperationType operationType;
+    private OrderOperationType operationType;
     private int truckCount;
     private List<Package> packages;
 
@@ -31,18 +33,16 @@ public class Order {
             return 0;
         }
 
-        int costPerSegment = operationType == OperationType.LOAD ? 80 : 50;
+        int costPerSegment = operationType == OrderOperationType.LOAD ? LOAD_COST : UNLOAD_COST;
 
         return packages.stream()
-                .mapToInt(pkg -> pkg.getHeight() * costPerSegment) // TODO: сделать метод вычисления
+                .mapToInt(pkg -> countSegments(pkg.getShape()) * costPerSegment)
                 .sum();
     }
 
-    /**
-     * Перечисление типов операций.
-     */
-    public enum OperationType {
-        LOAD,
-        UNLOAD
+    private int countSegments(List<String> shape) {
+        return shape.stream()
+                .mapToInt(row -> (int) row.chars().filter(ch -> ch != ' ').count())
+                .sum();
     }
 }

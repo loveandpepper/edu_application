@@ -1,10 +1,10 @@
 package org.hofftech.edu.service;
 
 import org.assertj.core.api.Assertions;
-import org.hofftech.edu.factory.packingstategy.PackingStrategy;
-import org.hofftech.edu.factory.packingstategy.PackingStrategyFactory;
+import org.hofftech.edu.factory.PackingStrategyFactory;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
+import org.hofftech.edu.service.packingstategy.PackingStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,6 +19,7 @@ class FileProcessingServiceTest {
     private TruckService truckServiceMock;
     private JsonProcessingService jsonProcessingServiceMock;
     private PackingStrategyFactory packingStrategyFactoryMock;
+    private OrderManagerService orderManagerServiceMock;
 
     @BeforeEach
     void setUp() {
@@ -27,13 +28,15 @@ class FileProcessingServiceTest {
         truckServiceMock = Mockito.mock(TruckService.class);
         jsonProcessingServiceMock = Mockito.mock(JsonProcessingService.class);
         packingStrategyFactoryMock = Mockito.mock(PackingStrategyFactory.class);
+        orderManagerServiceMock = Mockito.mock(OrderManagerService.class);
 
         fileProcessingService = new FileProcessingService(
                 parsingServiceMock,
                 validatorServiceMock,
                 truckServiceMock,
                 jsonProcessingServiceMock,
-                packingStrategyFactoryMock
+                packingStrategyFactoryMock,
+                orderManagerServiceMock
         );
     }
 
@@ -55,7 +58,7 @@ class FileProcessingServiceTest {
                 .thenReturn("Truck output");
 
         String result = fileProcessingService.processFile(null, parcelsText, trucksFromArgs, false,
-                false, false);
+                false, false, "testUser");
 
         Assertions.assertThat(result).isEqualTo("Truck output");
     }
@@ -68,7 +71,7 @@ class FileProcessingServiceTest {
                 .thenReturn(List.of());
 
         Assertions.assertThatThrownBy(() -> fileProcessingService.processFile(null, parcelsText, List.of(),
-                        false, false, false))
+                        false, false, false, "testUser"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Упаковки не представлены, продолжение работы невозможно");
     }

@@ -1,17 +1,21 @@
-package org.hofftech.edu.factory.commandprocessor.impl;
+package org.hofftech.edu.service.commandprocessor.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.PackageArgumentException;
-import org.hofftech.edu.factory.commandprocessor.CommandProcessor;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.ValidatorService;
+import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
 import java.util.List;
 
-public record CreateCommandProcessor(PackageRepository packageRepository,
-                                     ValidatorService validatorService) implements CommandProcessor {
+@RequiredArgsConstructor
+public class CreateCommandProcessor implements CommandProcessor {
+
+    private final PackageRepository packageRepository;
+    private final ValidatorService validatorService;
 
     private static final int FIRST_CHAR_INDEX = 0;
     private static final int POSITION_START_INDEX = 0;

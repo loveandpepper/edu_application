@@ -21,6 +21,9 @@ public class ParsedCommand {
     private final boolean useEasyAlgorithm;
     private final boolean useEvenAlgorithm;
 
+    private final String user;
+    private final String from;
+    private final String to;
     private final String parcelsText;
     private final String parcelsFile;
     private final String trucks;

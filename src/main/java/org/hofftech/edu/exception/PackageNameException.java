@@ -1,7 +1,7 @@
 package org.hofftech.edu.exception;
 
 /**
- * Исключение, выбрасываемое, если не удается создать посылку.
+ * Исключение при отсутствии имени посылки
  */
 public class PackageNameException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package org.hofftech.edu.factory.packingstategy;
+package org.hofftech.edu.service.packingstategy;
 
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;

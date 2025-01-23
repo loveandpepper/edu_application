@@ -2,7 +2,9 @@ package org.hofftech.edu.controller;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.handler.CommandHandler;
+import org.hofftech.edu.factory.CommandProcessorFactory;
+import org.hofftech.edu.model.ParsedCommand;
+import org.hofftech.edu.service.CommandParser;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,20 +18,32 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Slf4j
 @Getter
 public class TelegramBotController extends TelegramLongPollingBot {
-    public static final String TOKEN = System.getenv("TELEGRAM_BOT_TOKEN");
-    public static final String BOT_NAME = System.getenv("TELEGRAM_BOT_NAME");
+
+    private final String botToken;
+    private final String botName;
     private static final String PARSE_MODE = "MarkdownV2";
-    private final CommandHandler commandHandler;
+    private final CommandProcessorFactory processorFactory;
+    private final CommandParser commandParser;
 
     /**
-     * Конструктор TelegramBotService.
+     * Конструктор TelegramBotController.
      *
-     * @param botToken         токен для авторизации бота
-     * @param commandHandler   обработчик команд
+     * @param processorFactory фабрика процессоров команд
+     * @param commandParser    парсер команд
      */
-    public TelegramBotController(String botToken, CommandHandler commandHandler) {
-        super(botToken);
-        this.commandHandler = commandHandler;
+    public TelegramBotController(String botToken, String botName,
+                                 CommandProcessorFactory processorFactory,
+                                 CommandParser commandParser) {
+        super("");
+        this.botToken = botToken;
+        this.botName = botName;
+        this.processorFactory = processorFactory;
+        this.commandParser = commandParser;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return botName;
     }
 
     /**
@@ -43,7 +57,9 @@ public class TelegramBotController extends TelegramLongPollingBot {
             Long chatId = update.getMessage().getChatId();
             String message = update.getMessage().getText();
             try {
-                String response = commandHandler.handle(message);
+                ParsedCommand parsedCommand = commandParser.parse(message);
+                String response = processorFactory.createProcessor(parsedCommand.getCommandType())
+                        .execute(parsedCommand);
                 String markdownResponse = "```\n" + response + "\n```";
                 SendMessage sendMessage = new SendMessage();
                 sendMessage.setChatId(chatId.toString());
@@ -57,17 +73,7 @@ public class TelegramBotController extends TelegramLongPollingBot {
     }
 
     /**
-     * Возвращает имя бота.
-     *
-     * @return строка с именем бота
-     */
-    @Override
-    public String getBotUsername() {
-        return BOT_NAME;
-    }
-
-    /**
-     * Регистрация телеграм бота
+     * Регистрация телеграм бота.
      */
     public void registerBot() {
         try {

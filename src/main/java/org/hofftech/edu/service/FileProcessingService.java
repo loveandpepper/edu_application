@@ -2,12 +2,15 @@ package org.hofftech.edu.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.factory.packingstategy.PackingStrategy;
-import org.hofftech.edu.factory.packingstategy.PackingStrategyFactory;
+import org.hofftech.edu.factory.PackingStrategyFactory;
+import org.hofftech.edu.model.Order;
+import org.hofftech.edu.model.OrderOperationType;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
+import org.hofftech.edu.service.packingstategy.PackingStrategy;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,26 +21,30 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FileProcessingService {
+
     private final ParsingService fileParser;
     private final ValidatorService validatorService;
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
     private final PackingStrategyFactory packingStrategyFactory;
+    private final OrderManagerService orderManagerService;
     /**
      * Обрабатывает файл с посылками и параметры командной строки, выполняя упаковку в грузовики.
      *
      * @param parcelsFile    путь к файлу с посылками (может быть null, если используются данные из строки)
      * @param parcelsText    текстовый ввод с данными о посылках (если файл отсутствует)
      * @param trucksFromArgs список параметров для создания грузовиков
-     * @param useEasyAlg     флаг использования простого алгоритма упаковки
+     * @param isEasyAlgorithm     флаг использования простого алгоритма упаковки
      * @param saveToFile     флаг, указывающий, сохранять ли данные грузовиков в файл
-     * @param useEvenAlg     флаг использования алгоритма равномерного распределения
+     * @param isEvenAlgorithm     флаг использования алгоритма равномерного распределения
      */
     public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
-                              boolean useEasyAlg, boolean saveToFile, boolean useEvenAlg) {
+                              boolean isEasyAlgorithm, boolean saveToFile, boolean isEvenAlgorithm, String user) {
         List<Package> packages = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
-        PackingStrategy strategy = packingStrategyFactory.createStrategy(useEasyAlg);
-        List<Truck> trucks = strategy.addPackages(packages, useEasyAlg, useEvenAlg, trucksFromArgs);
+        PackingStrategy strategy = packingStrategyFactory.createStrategy(isEasyAlgorithm);
+        List<Truck> trucks = strategy.addPackages(packages, isEasyAlgorithm, isEvenAlgorithm, trucksFromArgs);
+
+        addLoadOrder(trucks, user);
 
         if (saveToFile) {
             saveTrucksToJson(trucks);
@@ -45,6 +52,28 @@ public class FileProcessingService {
         } else {
             return truckService.printTrucks(trucks);
         }
+    }
+
+    private void addLoadOrder(List<Truck> trucks, String userId) {
+        List<Package> allPackages = new ArrayList<>();
+        int truckCount = 0;
+        for (Truck truck : trucks) {
+            List<Package> packagesFromTruck = truck.getPackages();
+            if (!packagesFromTruck.isEmpty()) {
+                allPackages.addAll(truck.getPackages());
+                truckCount++;
+            }
+        }
+
+        Order order = new Order(
+                userId,
+                LocalDate.now(),
+                OrderOperationType.LOAD,
+                truckCount,
+                allPackages
+        );
+        orderManagerService.addOrder(order);
+        log.info("Заказ на погрузку добавлен для пользователя {}", userId);
     }
 
     private List<Package> getPackagesFromFileOrArgs(Path parcelsFile, String parcelsText) {
