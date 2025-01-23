@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LoadCommandProcessor implements CommandProcessor {
 
+    private static final String TRUCK_SPLITTER = ",";
     private final FileProcessingService fileProcessingService;
 
     @Override
@@ -27,11 +28,11 @@ public class LoadCommandProcessor implements CommandProcessor {
 
         try {
             List<String> trucksFromArgs = trucksText != null && !trucksText.isEmpty()
-                    ? new ArrayList<>(List.of(trucksText.split(",")))
+                    ? new ArrayList<>(List.of(trucksText.split(TRUCK_SPLITTER)))
                     : new ArrayList<>();
 
             if (user == null || user.isEmpty()) {
-                throw new UserNotProvidedException("Пользователь должен быть передан для комынды LOAD");
+                throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
             }
 
             if (parcelsText != null && !parcelsText.isEmpty()) {

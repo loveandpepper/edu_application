@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @SpringBootApplication
-public class Main {
+public class EduApplication {
     /**
      * Точка входа в приложение.
      *
@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         log.info("Приложение запускается...");
-        SpringApplication.run(Main.class, args);
+        SpringApplication.run(EduApplication.class, args);
         log.info("Приложение завершило работу.");
     }
 }
