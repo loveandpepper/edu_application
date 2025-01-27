@@ -58,7 +58,7 @@ public class TelegramBotController extends TelegramLongPollingBot {
             String message = update.getMessage().getText();
             try {
                 ParsedCommand parsedCommand = commandParser.parse(message);
-                String response = processorFactory.createProcessor(parsedCommand.getCommandType())
+                String response = (String) processorFactory.createProcessor(parsedCommand.getCommandType())
                         .execute(parsedCommand);
                 String markdownResponse = "```\n" + response + "\n```";
                 SendMessage sendMessage = new SendMessage();

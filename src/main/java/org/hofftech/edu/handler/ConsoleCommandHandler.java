@@ -15,7 +15,7 @@ import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 @Slf4j
 @RequiredArgsConstructor
 
-public class CommandHandler {
+public class ConsoleCommandHandler {
 
     private final CommandProcessorFactory processorFactory;
     private final CommandParser commandParser;
@@ -31,12 +31,7 @@ public class CommandHandler {
     public String handle(String command) {
         ParsedCommand parsedCommand = commandParser.parse(command);
         currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
-
-        if (currentProcessor != null) {
-            return currentProcessor.execute(parsedCommand);
-        } else {
-            throw new IllegalArgumentException("Процессор для команды не найден: " + parsedCommand.getCommandType());
-        }
+        return (String) currentProcessor.execute(parsedCommand);
     }
 
 }

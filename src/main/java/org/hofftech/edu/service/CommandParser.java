@@ -92,19 +92,19 @@ public class CommandParser {
         String dateFrom = parameters.get(DATE_FROM);
         String dateTo = parameters.get(DATE_TO);
 
-        return new ParsedCommand(
-                saveToFile,
-                isEasyAlgorithm,
-                isEvenAlgorithm,
-                user,
-                dateFrom,
-                dateTo,
-                parcelsText,
-                parcelsFile,
-                trucks,
-                inFile,
-                withCount
-        );
+        ParsedCommand command = new ParsedCommand();
+        command.setSaveToFile(saveToFile);
+        command.setEasyAlgorithm(isEasyAlgorithm);
+        command.setEvenAlgorithm(isEvenAlgorithm);
+        command.setUser(user);
+        command.setFrom(dateFrom);
+        command.setTo(dateTo);
+        command.setParcelsText(parcelsText);
+        command.setParcelsFile(parcelsFile);
+        command.setTrucks(trucks);
+        command.setInFile(inFile);
+        command.setIswithCount(withCount);
+        return command;
     }
 
     private void setOptionalParameters(ParsedCommand parsedCommand, Map<String, String> parameters) {

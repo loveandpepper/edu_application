@@ -42,7 +42,7 @@ public class OrderManagerService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        log.info("Генерируем отчет для " + userId + " с " + from + " по " + to);
+        log.info("Генерируем отчет для {} с {} по {}", userId, from, to);
         try {
             fromDate = LocalDate.parse(from, formatter);
             toDate = LocalDate.parse(to, formatter);
@@ -50,14 +50,14 @@ public class OrderManagerService {
             throw new BillingException("Некорректный формат даты. Используйте формат: dd-MM-yyyy.");
         }
 
-        List<Order> orders = getOrdersByUserIdAndDateRange(userId, fromDate, toDate);
+        List<Order> collectedOrders = getOrdersByUserIdAndDateRange(userId, fromDate, toDate);
 
-        if (orders.isEmpty()) {
+        if (collectedOrders.isEmpty()) {
             throw new BillingException("Не найдено заказов для пользователя " + userId +
                     " в диапазоне " + fromDate + " - " + toDate);
         }
 
-        return orders.stream()
+        return collectedOrders.stream()
                 .map(order -> String.format(
                         "%s; %s; %d машин; %d посылок; %d рублей",
                         order.getDate().format(formatter),

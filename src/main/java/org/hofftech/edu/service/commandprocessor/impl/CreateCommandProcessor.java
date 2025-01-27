@@ -3,7 +3,6 @@ package org.hofftech.edu.service.commandprocessor.impl;
 import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.PackageArgumentException;
 import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.ValidatorService;
@@ -31,10 +30,10 @@ public class CreateCommandProcessor implements CommandProcessor {
         }
 
         List<String> shape = validatorService.validateForm(form);
-        Package newPackage = new Package(name, shape, symbol, new PackageStartPosition(POSITION_START_INDEX, POSITION_START_INDEX));
+        Package newPackage = new Package(name, shape, symbol, POSITION_START_INDEX, POSITION_START_INDEX);
         packageRepository.addPackage(newPackage);
 
-        StringBuilder output = new StringBuilder("Создана посылка " + newPackage.getName() + "\nФорма посылки:\n");
+        StringBuilder output = new StringBuilder("Создана посылка: " + newPackage.getName() + "\nФорма посылки:\n");
         shape.forEach(line -> output.append(line).append("\n"));
         return output.toString();
     }

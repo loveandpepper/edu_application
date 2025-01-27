@@ -2,7 +2,6 @@ package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.Truck;
 
 import java.util.List;
@@ -102,7 +101,8 @@ public class PackingService {
             for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.getFirst().length(); startX++) {
                 if (canAddPackage(truck, providedPackage, startX, startY)) {
                     log.info("Упаковка {} успешно добавлена", providedPackage.getName());
-                    providedPackage.setPackageStartPosition(new PackageStartPosition(startX, startY));
+                    providedPackage.setStartPositionX(startX);
+                    providedPackage.setStartPositionY(startY);
                     placePackage(truck, providedPackage, startX, startY);
                     return true;
                 }
@@ -117,12 +117,12 @@ public class PackingService {
      * Размещает упаковку в указанной позиции грузовика.
      *
      * @param truck грузовик, в котором размещается упаковка
-     * @param pkg   упаковка для размещения
+     * @param providedPackage   упаковка для размещения
      * @param startX координата X начальной позиции
      * @param startY координата Y начальной позиции
      */
-    protected void placePackage(Truck truck, Package pkg, int startX, int startY) {
-        List<String> shape = pkg.getReversedShape();
+    protected void placePackage(Truck truck, Package providedPackage, int startX, int startY) {
+        List<String> shape = providedPackage.getReversedShape();
 
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
@@ -131,9 +131,10 @@ public class PackingService {
                 }
             }
         }
-        pkg.setPackageStartPosition(new PackageStartPosition(startX, startY));
-        truck.getPackages().add(pkg);
-        log.info("Упаковка {} размещена на грузовике", pkg.getName());
+        providedPackage.setStartPositionX(startX);
+        providedPackage.setStartPositionY(startY);
+        truck.getPackages().add(providedPackage);
+        log.info("Упаковка {} размещена на грузовике", providedPackage.getName());
     }
 
 

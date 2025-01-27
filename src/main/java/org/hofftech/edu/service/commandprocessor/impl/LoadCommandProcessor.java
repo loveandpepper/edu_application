@@ -22,8 +22,8 @@ public class LoadCommandProcessor implements CommandProcessor {
         String parcelsFile = command.getParcelsFile();
         String trucksText = command.getTrucks();
         String user = command.getUser();
-        boolean useEasyAlgorithm = command.isUseEasyAlgorithm();
-        boolean useEvenAlgorithm = command.isUseEvenAlgorithm();
+        boolean useEasyAlgorithm = command.isEasyAlgorithm();
+        boolean useEvenAlgorithm = command.isEvenAlgorithm();
         boolean saveToFile = command.isSaveToFile();
 
         try {

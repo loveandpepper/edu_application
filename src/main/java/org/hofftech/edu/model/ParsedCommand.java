@@ -1,7 +1,9 @@
 package org.hofftech.edu.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -10,27 +12,36 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class ParsedCommand {
     private String name;
     private String oldName;
     private String form;
     private String symbol;
 
-    private final boolean saveToFile;
-    private final boolean useEasyAlgorithm;
-    private final boolean useEvenAlgorithm;
+    @JsonProperty("save")
+    private boolean saveToFile;
 
-    private final String user;
-    private final String from;
-    private final String to;
-    private final String parcelsText;
-    private final String parcelsFile;
-    private final String trucks;
-    private final String inFile;
-    private final boolean iswithCount;
+    @JsonProperty("easy")
+    private boolean isEasyAlgorithm;
+
+    @JsonProperty("even")
+    private boolean isEvenAlgorithm;
+
+    private String user;
+    private String from;
+    private String to;
+    private String parcelsText;
+    private String parcelsFile;
+    private String trucks;
+    private String inFile;
+    private boolean iswithCount;
 
     private CommandType commandType;
+
+    private Integer page;
+    private Integer size;
 }
 
 

@@ -9,10 +9,8 @@ import org.hofftech.edu.exception.InputFileException;
 import org.hofftech.edu.model.Order;
 import org.hofftech.edu.model.OrderOperationType;
 import org.hofftech.edu.model.Package;
-import org.hofftech.edu.model.PackageStartPosition;
 import org.hofftech.edu.model.Truck;
 import org.hofftech.edu.model.dto.PackageDto;
-import org.hofftech.edu.model.dto.PositionDto;
 import org.hofftech.edu.model.dto.TruckDto;
 
 import java.io.File;
@@ -64,16 +62,6 @@ public class JsonProcessingService {
             log.error("Ошибка при записи JSON: {}", e.getMessage());
             throw new RuntimeException(e);
         }
-    }
-
-    private PackageStartPosition getPackageStartPosition(PackageDto packageDto, PackageStartPosition position) {
-        if (packageDto.getStartPosition() != null) {
-            position = new PackageStartPosition(
-                    packageDto.getStartPosition().getX(),
-                    packageDto.getStartPosition().getY()
-            );
-        }
-        return position;
     }
 
     /**
@@ -149,13 +137,12 @@ public class JsonProcessingService {
 
     private void extractPackagesFromTruck(TruckDto truck, List<Package> packages) {
         for (PackageDto packageDto : truck.getPackages()) {
-            PackageStartPosition position = null;
-            position = getPackageStartPosition(packageDto, position);
             Package pkg = new Package(
                     packageDto.getName(),
                     packageDto.getShape(),
                     packageDto.getSymbol(),
-                    position
+                    packageDto.getStartPositionX(),
+                    packageDto.getStartPositionY()
             );
             packages.add(pkg);
         }
@@ -174,16 +161,8 @@ public class JsonProcessingService {
         packageDto.setName(providedPackage.getName());
         packageDto.setShape(providedPackage.getReversedShape());
         packageDto.setSymbol(providedPackage.getSymbol());
-
-        PackageStartPosition position = providedPackage.getPackageStartPosition();
-        if (position != null) {
-            PositionDto positionDto = new PositionDto();
-            positionDto.setX(position.x() + ADJUSTING_FOR_START_POSITION);
-            positionDto.setY(position.y() + ADJUSTING_FOR_START_POSITION);
-            packageDto.setStartPosition(positionDto);
-        } else {
-            throw new RuntimeException("Отсутствует стартовая позиция у посылки " + providedPackage.getName());
-        }
+        packageDto.setStartPositionX(providedPackage.getStartPositionX() + ADJUSTING_FOR_START_POSITION);
+        packageDto.setStartPositionY(providedPackage.getStartPositionY() + ADJUSTING_FOR_START_POSITION);
 
         return packageDto;
     }

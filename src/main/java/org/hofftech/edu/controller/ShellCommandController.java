@@ -2,7 +2,7 @@ package org.hofftech.edu.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.handler.CommandHandler;
+import org.hofftech.edu.handler.ConsoleCommandHandler;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -15,7 +15,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class ShellCommandController {
 
-    private final CommandHandler commandHandler;
+    private final ConsoleCommandHandler consoleCommandHandler;
 
     @ShellMethod("Стартовая команда")
     public String start() {
@@ -30,42 +30,43 @@ public class ShellCommandController {
 
     @ShellMethod("Поиск посылки")
     public String find(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("find " + args);
+        return consoleCommandHandler.handle("find " + args);
     }
 
     @ShellMethod("Создание новой посылки")
     public String create(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("create " + args);
+        return consoleCommandHandler.handle("create " + args);
     }
 
     @ShellMethod("Обновление существующей посылки")
     public String update(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("update " + args);
+        return consoleCommandHandler.handle("update " + args);
     }
 
     @ShellMethod("Удаление посылки")
     public String delete(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("delete " + args);
+        return consoleCommandHandler.handle("delete " + args);
     }
 
     @ShellMethod("Список всех посылок")
     public String list() {
-        return commandHandler.handle("list");
+        return consoleCommandHandler.handle("list");
     }
 
     @ShellMethod("Погрузка")
     public String load(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("load " + args);
+
+        return consoleCommandHandler.handle("load " + args);
     }
 
     @ShellMethod("Разгрузка")
     public String unload(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("unload " + args);
+        return consoleCommandHandler.handle("unload " + args);
     }
 
     @ShellMethod("Генерация отчета биллинга")
     public String billing(@ShellOption(defaultValue = "") String args) {
-        return commandHandler.handle("billing " + args);
+        return consoleCommandHandler.handle("billing " + args);
     }
 
 }

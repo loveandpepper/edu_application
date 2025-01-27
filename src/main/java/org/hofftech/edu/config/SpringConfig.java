@@ -2,10 +2,11 @@ package org.hofftech.edu.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hofftech.edu.controller.ApiCommandController;
 import org.hofftech.edu.controller.TelegramBotController;
 import org.hofftech.edu.factory.CommandProcessorFactory;
 import org.hofftech.edu.factory.PackingStrategyFactory;
-import org.hofftech.edu.handler.CommandHandler;
+import org.hofftech.edu.handler.ConsoleCommandHandler;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.CommandParser;
 import org.hofftech.edu.service.CommandTypeService;
@@ -18,9 +19,13 @@ import org.hofftech.edu.service.ParsingService;
 import org.hofftech.edu.service.TruckService;
 import org.hofftech.edu.service.ValidatorService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.sql.DataSource;
 import java.time.Clock;
 
 /**
@@ -31,10 +36,19 @@ import java.time.Clock;
 public class SpringConfig {
 
     @Bean
-    public PackageRepository packageRepository() {
-        PackageRepository repository = new PackageRepository();
-        repository.loadDefaultPackages();
-        return repository;
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSource dataSource() {
+        return new DriverManagerDataSource();
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public PackageRepository packageRepository(JdbcTemplate jdbcTemplate) {
+        return new PackageRepository(jdbcTemplate);
     }
 
     @Bean
@@ -141,10 +155,15 @@ public class SpringConfig {
     }
 
     @Bean
-    public CommandHandler commandHandler(
+    public ConsoleCommandHandler commandHandler(
             CommandParser commandParser,
             CommandProcessorFactory commandProcessorFactory) {
-        return new CommandHandler(commandProcessorFactory, commandParser);
+        return new ConsoleCommandHandler(commandProcessorFactory, commandParser);
+    }
+
+    @Bean
+    public ApiCommandController apiCommandController(CommandProcessorFactory processorFactory) {
+        return new ApiCommandController(processorFactory);
     }
 
 }

@@ -1,10 +1,14 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.PackageNotFoundException;
+import org.hofftech.edu.mapper.PackageMapper;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,14 +18,18 @@ public class ListCommandProcessor implements CommandProcessor {
     private final PackageRepository packageRepository;
 
     @Override
-    public String execute(ParsedCommand command) {
-        List<Package> packages = packageRepository.getAllPackages();
+    public Object execute(ParsedCommand command) {
+        int page = command.getPage() != null ? command.getPage() : 0;
+        int size = command.getSize() != null ? command.getSize() : 10;
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Package> packages = packageRepository.getAllPackages(pageable);
         if (packages.isEmpty()) {
-            return "Нет доступных посылок.";
+            throw new PackageNotFoundException("Посылки не найдены");
         } else {
-            StringBuilder output = new StringBuilder("Список всех посылок:\n");
-            packages.forEach(pkg -> output.append(pkg).append("\n"));
-            return output.toString();
+            return packages.stream()
+                    .map(PackageMapper.INSTANCE::toDto)
+                    .toList();
         }
     }
 

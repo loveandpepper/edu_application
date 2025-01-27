@@ -14,5 +14,6 @@ public class PackageDto {
     private String name;
     private List<String> shape;
     private char symbol;
-    private PositionDto startPosition;
+    private int startPositionX;
+    private int startPositionY;
 }

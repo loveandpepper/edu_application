@@ -1,6 +1,7 @@
 package org.hofftech.edu.factory;
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.ProcessorException;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
@@ -43,6 +44,7 @@ public class CommandProcessorFactory {
             case BILLING -> new BillingCommandProcessor(orderManagerService);
             case START -> new StartCommandProcessor();
             case EXIT -> new ExitCommandProcessor();
+            case null, default -> throw new ProcessorException("Процессор для команды не найден");
         };
     }
 }

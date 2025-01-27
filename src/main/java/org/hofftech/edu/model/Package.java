@@ -2,8 +2,8 @@ package org.hofftech.edu.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,13 +15,14 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor
 @AllArgsConstructor
 public class Package implements Comparable<Package> {
     private String name;
     private List<String> shape;
     private char symbol;
-    private PackageStartPosition packageStartPosition;
+    private int startPositionX;
+    private int startPositionY;
 
     public int getWidth() {
         return shape.getFirst().length();

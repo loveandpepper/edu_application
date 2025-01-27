@@ -43,12 +43,13 @@ public class UpdateCommandProcessor implements CommandProcessor {
                 newName,
                 newShape,
                 existingPackage.getSymbol(),
-                existingPackage.getPackageStartPosition()
+                existingPackage.getStartPositionX(),
+                existingPackage.getStartPositionY()
         );
 
-        packageRepository.editPackage(currentName, updatedPackage);
+        packageRepository.updatePackage(currentName, updatedPackage);
 
-        StringBuilder output = new StringBuilder("Обновлённая посылка:\n");
+        StringBuilder output = new StringBuilder("Обновлённая посылка: " + updatedPackage.getName() + "\n");
         newShape.forEach(shape -> output.append(shape).append('\n'));
         return output.toString();
     }
