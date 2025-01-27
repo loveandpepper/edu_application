@@ -1,6 +1,7 @@
 package org.hofftech.edu.model.dto;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * Используется для передачи данных о упаковке между слоями приложения.
  */
 @Data
+@ToString
 public class PackageDto {
 
     private String name;

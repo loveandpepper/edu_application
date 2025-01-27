@@ -31,7 +31,7 @@ public class ConsoleCommandHandler {
     public String handle(String command) {
         ParsedCommand parsedCommand = commandParser.parse(command);
         currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
-        return (String) currentProcessor.execute(parsedCommand);
+        return currentProcessor.execute(parsedCommand).toString();
     }
 
 }

@@ -57,13 +57,13 @@ class OrderManagerServiceTest {
         Order order1 = new Order("user1", LocalDate.of(2023, 1, 1),
                 OrderOperationType.LOAD, 3,
                 List.of(new Package("Посылка Тип 1", List.of("1"),
-                                '1', null),
-                        new Package("Посылка Тип 2", List.of("22"), '2', null)));
+                                '1', 0, 0),
+                        new Package("Посылка Тип 2", List.of("22"), '2', 0, 0)));
 
         Order order2 = new Order("user1", LocalDate.of(2023, 1, 1),
                 OrderOperationType.UNLOAD, 3, List.of(new Package("Посылка Тип 1", List.of("1"),
-                        '1', null),
-                new Package("Посылка Тип 3", List.of("333"), '3', null)));
+                        '1', 0, 0),
+                new Package("Посылка Тип 3", List.of("333"), '3', 0, 0)));
 
         orderManagerService.addOrder(order1);
         orderManagerService.addOrder(order2);

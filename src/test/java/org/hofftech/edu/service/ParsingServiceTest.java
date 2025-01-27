@@ -27,9 +27,9 @@ class ParsingServiceTest {
         List<String> lines = List.of("Посылка Тип 1", "Посылка Тип 2");
 
         Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 1"))
-                .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', null)));
+                .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', 0, 0)));
         Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 2"))
-                .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', null)));
+                .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', 0, 0)));
 
         List<Package> result = parsingService.parsePackagesFromFile(lines);
 
@@ -57,9 +57,9 @@ class ParsingServiceTest {
         String parcelsText = "Посылка Тип 1, Посылка Тип 2";
 
         Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 1"))
-                .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', null)));
+                .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', 0, 0)));
         Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 2"))
-                .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', null)));
+                .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', 0, 0)));
 
         List<Package> result = parsingService.getPackagesFromArgs(parcelsText);
 

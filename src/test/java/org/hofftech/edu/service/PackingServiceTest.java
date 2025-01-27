@@ -20,7 +20,7 @@ class PackingServiceTest {
     @Test
     void shouldAddPackageToTruckSuccessfully() {
         Truck truck = new Truck(6, 6);
-        Package pkg = new Package("Посылка Тип 1", List.of("1"), '1', null);
+        Package pkg = new Package("Посылка Тип 1", List.of("1"), '1', 0, 0);
 
         boolean result = packingService.tryPack(truck, pkg);
 
@@ -30,7 +30,7 @@ class PackingServiceTest {
     @Test
     void shouldFailToAddPackageDueToLimits() {
         Truck truck = new Truck(6, 6);
-        Package pkg = new Package("Посылка Тип 1111", List.of("1111111111"), '1', null);
+        Package pkg = new Package("Посылка Тип 1111", List.of("1111111111"), '1', 0, 0);
 
         boolean result = packingService.tryPack(truck, pkg);
 
