@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  shell:
+    interactive:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+  file:
+    name: logs/console-service.log
+
+business-service:
+  url: http://localhost:8080
