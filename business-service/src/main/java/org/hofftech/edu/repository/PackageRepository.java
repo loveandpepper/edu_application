@@ -3,6 +3,7 @@ package org.hofftech.edu.repository;
 import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.PackageNameException;
 import org.hofftech.edu.exception.PackageNotFoundException;
+import org.hofftech.edu.exception.UpdateException;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.util.SqlCommand;
 import org.springframework.data.domain.Pageable;
@@ -73,7 +74,7 @@ public class PackageRepository {
                     updatedPackage.getStartPositionY(),
                     name);
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при обновлении посылки: " + name, e);
+            throw new UpdateException("Ошибка при обновлении посылки: " + name);
         }
 
         if (rowsAffected == 0) {

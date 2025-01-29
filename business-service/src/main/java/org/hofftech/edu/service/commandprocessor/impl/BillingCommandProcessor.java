@@ -10,7 +10,7 @@ import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 public class BillingCommandProcessor implements CommandProcessor {
     private final OrderManagerService orderManagerService;
 
-    private static boolean isArgumentsNotEmpty(String user, String dateFrom, String dateTo) {
+    private boolean isArgumentsNotEmpty(String user, String dateFrom, String dateTo) {
         return user != null && dateFrom != null && dateTo != null &&
                 !user.isEmpty() && !dateFrom.isEmpty() && !dateTo.isEmpty();
     }
@@ -21,11 +21,10 @@ public class BillingCommandProcessor implements CommandProcessor {
         String dateFrom = command.getFrom();
         String dateTo = command.getTo();
 
-        if (isArgumentsNotEmpty(user, dateFrom, dateTo)) {
-            return orderManagerService.generateReport(user, dateFrom, dateTo);
-        } else {
+        if (!isArgumentsNotEmpty(user, dateFrom, dateTo)) {
             throw new BillingException("Пользователь и диапазон дат должны быть указаны в BILLING");
         }
+        return orderManagerService.generateReport(user, dateFrom, dateTo);
 
     }
 }

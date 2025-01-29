@@ -112,23 +112,6 @@ public class SpringConfig {
         return new FileSavingService();
     }
 
-    @Bean
-    public CommandProcessorFactory commandProcessorFactory(
-            PackageRepository packageRepository,
-            FileProcessingService fileProcessingService,
-            JsonProcessingService jsonProcessingService,
-            FileSavingService fileSavingService,
-            ValidatorService validatorService,
-            OrderManagerService orderManagerService) {
-        return new CommandProcessorFactory(
-                packageRepository, fileProcessingService, jsonProcessingService,
-                fileSavingService, validatorService, orderManagerService);
-    }
-
-    @Bean
-    public ApiCommandController apiCommandController(CommandProcessorFactory processorFactory) {
-        return new ApiCommandController(processorFactory);
-    }
 
 }
 

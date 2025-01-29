@@ -10,6 +10,9 @@ repositories {
 
 val versions = mapOf(
     "springShell" to "3.3.2",
+    "mockito" to "5.5.0",
+    "junitBom" to "5.10.0",
+    "assertj" to "3.23.1",
     "lombok" to "1.18.30"
 )
 
@@ -21,5 +24,14 @@ dependencies {
     compileOnly("org.projectlombok:lombok:${versions["lombok"]}")
     annotationProcessor("org.projectlombok:lombok:${versions["lombok"]}")
 
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-core:${versions["mockito"]}")
+    testImplementation(platform("org.junit:junit-bom:${versions["junitBom"]}"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.assertj:assertj-core:${versions["assertj"]}")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

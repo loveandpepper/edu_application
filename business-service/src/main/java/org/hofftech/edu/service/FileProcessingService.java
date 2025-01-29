@@ -2,6 +2,8 @@ package org.hofftech.edu.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.exception.FileParsingException;
+import org.hofftech.edu.exception.JsonSavingException;
 import org.hofftech.edu.factory.PackingStrategyFactory;
 import org.hofftech.edu.model.Order;
 import org.hofftech.edu.model.OrderOperationType;
@@ -51,9 +53,9 @@ public class FileProcessingService {
         if (saveToFile) {
             saveTrucksToJson(trucks);
             return "Данные успешно сохранены в файл.";
-        } else {
-            return truckService.printTrucks(trucks);
         }
+
+        return truckService.printTrucks(trucks);
     }
 
     private void addLoadOrder(List<Truck> trucks, String userId) {
@@ -103,7 +105,7 @@ public class FileProcessingService {
             String result = jsonProcessingService.saveToJson(trucks);
             log.info("Данные успешно сохранены в JSON: {}", result);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при сохранении данных в JSON: " + e.getMessage());
+            throw new JsonSavingException("Ошибка при сохранении данных в JSON: " + e.getMessage());
         }
     }
     /**
@@ -116,7 +118,7 @@ public class FileProcessingService {
     protected List<Package> parseFileLines(Path filePath, List<String> lines) {
         List<Package> packages = fileParser.parsePackagesFromFile(lines);
         if (packages.isEmpty()) {
-            throw new RuntimeException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
+            throw new FileParsingException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
         }
         log.info("Успешно распарсено {} упаковок.", packages.size());
         return packages;

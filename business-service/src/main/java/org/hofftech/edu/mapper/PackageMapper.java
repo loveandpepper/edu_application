@@ -10,16 +10,14 @@ import org.hofftech.edu.model.dto.requestdto.UnloadPackageDto;
 import org.hofftech.edu.model.dto.requestdto.UpdatePackageDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.MappingConstants;
 
 /**
  * Маппер для преобразования между Package и PackageDto.
  * Использует MapStruct для генерации реализации.
  */
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PackageMapper {
-
-    PackageMapper INSTANCE = Mappers.getMapper(PackageMapper.class);
 
     /**
      * Преобразует сущность Package в DTO.

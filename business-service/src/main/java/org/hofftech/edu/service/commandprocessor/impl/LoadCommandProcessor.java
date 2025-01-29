@@ -1,6 +1,7 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.LoadException;
 import org.hofftech.edu.exception.UserNotProvidedException;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.FileProcessingService;
@@ -47,7 +48,7 @@ public class LoadCommandProcessor implements CommandProcessor {
                 throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при погрузке: " + e.getMessage());
+            throw new LoadException("Ошибка при погрузке: " + e.getMessage());
         }
     }
 }

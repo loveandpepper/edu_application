@@ -18,15 +18,7 @@ import org.hofftech.edu.model.dto.requestdto.UnloadPackageDto;
 import org.hofftech.edu.model.dto.requestdto.UpdatePackageDto;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -35,35 +27,49 @@ import java.util.List;
 public class ApiCommandController {
 
     private final CommandProcessorFactory processorFactory;
+    private final PackageMapper packageMapper;
 
+    /**
+     * Создать новую посылку
+     * POST /api/packages
+     */
     @Operation(summary = "Создать новую посылку", description = "Создаёт новую посылку с указанными параметрами.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылка успешно создана"),
             @ApiResponse(responseCode = "400", description = "Ошибка в запросе")
     })
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<String> create(@RequestBody CreatePackageDto dto) {
-        ParsedCommand command = PackageMapper.INSTANCE.toParsedCommand(dto);
-
+        ParsedCommand command = packageMapper.toParsedCommand(dto);
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "Обновить посылку", description = "Обновляет существующую посылку с заданными параметрами.")
+    /**
+     * Обновить посылку
+     * PUT /api/packages/{name}
+     */
+    @Operation(summary = "Обновить посылку", description = "Обновляет существующую посылку по её имени.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылка успешно обновлена"),
             @ApiResponse(responseCode = "400", description = "Ошибка в запросе")
     })
-    @PostMapping("/update")
-    public ResponseEntity<String> update(@RequestBody UpdatePackageDto dto) {
-        ParsedCommand command = PackageMapper.INSTANCE.toParsedCommand(dto);
+    @PutMapping("/{name}")
+    public ResponseEntity<String> update(@PathVariable String name,
+                                         @RequestBody UpdatePackageDto dto) {
+        ParsedCommand command = packageMapper.toParsedCommand(dto);
+        command.setName(name);
 
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * Удалить посылку
+     * DELETE /api/packages/{name}
+     */
     @Operation(summary = "Удалить посылку", description = "Удаляет посылку по имени.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылка успешно удалена"),
@@ -80,29 +86,37 @@ public class ApiCommandController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * Найти посылку
+     * GET /api/packages/{name}
+     */
     @Operation(summary = "Найти посылку", description = "Возвращает данные посылки по её имени.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылка найдена",
                     content = @Content(schema = @Schema(implementation = PackageDto.class))),
             @ApiResponse(responseCode = "404", description = "Посылка не найдена")
     })
-    @GetMapping("/find/{name}")
+    @GetMapping("/{name}")
     public ResponseEntity<PackageDto> find(@PathVariable String name) {
         ParsedCommand command = new ParsedCommand();
         command.setCommandType(CommandType.FIND);
         command.setName(name);
 
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
-        Object result = processor.execute(command);
-        return ResponseEntity.ok((PackageDto) result);
+        PackageDto result = (PackageDto) processor.execute(command);
+        return ResponseEntity.ok(result);
     }
 
+    /**
+     * Получить список посылок
+     * GET /api/packages
+     */
     @Operation(summary = "Получить список посылок", description = "Возвращает список всех посылок.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Список успешно получен",
                     content = @Content(schema = @Schema(implementation = List.class)))
     })
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<List<PackageDto>> list(@RequestParam(value = "page", defaultValue = "0") int page,
                                                  @RequestParam(value = "size", defaultValue = "10") int size) {
         ParsedCommand command = new ParsedCommand();
@@ -111,10 +125,14 @@ public class ApiCommandController {
         command.setSize(size);
 
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
-        Object result = processor.execute(command);
-        return ResponseEntity.ok((List<PackageDto>) result);
+        List<PackageDto> result = (List<PackageDto>) processor.execute(command);
+        return ResponseEntity.ok(result);
     }
 
+    /**
+     * Погрузка
+     * POST /api/packages/load
+     */
     @Operation(summary = "Погрузка", description = "Погружает посылки в грузовики с указанными параметрами.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылки успешно погружены"),
@@ -122,13 +140,16 @@ public class ApiCommandController {
     })
     @PostMapping("/load")
     public ResponseEntity<String> load(@RequestBody LoadPackageDto dto) {
-        ParsedCommand command = PackageMapper.INSTANCE.toParsedCommand(dto);
-
+        ParsedCommand command = packageMapper.toParsedCommand(dto);
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * Разгрузка
+     * POST /api/packages/unload
+     */
     @Operation(summary = "Разгрузка", description = "Выгружает посылки из грузовиков в указанный файл.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Посылки успешно выгружены"),
@@ -136,13 +157,16 @@ public class ApiCommandController {
     })
     @PostMapping("/unload")
     public ResponseEntity<String> unload(@RequestBody UnloadPackageDto dto) {
-        ParsedCommand command = PackageMapper.INSTANCE.toParsedCommand(dto);
-
+        ParsedCommand command = packageMapper.toParsedCommand(dto);
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * Рассчитать стоимость
+     * POST /api/packages/billing
+     */
     @Operation(summary = "Рассчитать стоимость", description = "Выполняет расчёт стоимости для пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Расчёт успешно выполнен"),
@@ -150,8 +174,7 @@ public class ApiCommandController {
     })
     @PostMapping("/billing")
     public ResponseEntity<String> billing(@RequestBody BillingDto dto) {
-        ParsedCommand command = PackageMapper.INSTANCE.toParsedCommand(dto);
-
+        ParsedCommand command = packageMapper.toParsedCommand(dto);
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);
         return ResponseEntity.ok(result);

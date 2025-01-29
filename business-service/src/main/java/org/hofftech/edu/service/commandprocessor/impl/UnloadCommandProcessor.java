@@ -3,6 +3,7 @@ package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.OutputFileException;
+import org.hofftech.edu.exception.UnloadException;
 import org.hofftech.edu.exception.UserNotProvidedException;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.FileSavingService;
@@ -24,7 +25,7 @@ public class UnloadCommandProcessor implements CommandProcessor {
     @Override
     public String execute(ParsedCommand command) {
         String inFile = command.getInFile();
-        boolean isWithCount = command.isIswithCount();
+        boolean isWithCount = command.isWithCount();
         String user = command.getUser();
 
         if (inFile == null || inFile.isEmpty()) {
@@ -41,7 +42,7 @@ public class UnloadCommandProcessor implements CommandProcessor {
             fileSavingService.savePackagesToFile(packageCountMap, OUTPUT_FILE_PATH, isWithCount);
             return "Файл успешно импортирован из JSON: " + inFile;
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при обработке команды importJson: " + e.getMessage());
+            throw new UnloadException("Ошибка при обработке команды importJson: " + e.getMessage());
         }
     }
 }

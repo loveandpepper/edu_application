@@ -3,6 +3,7 @@ package org.hofftech.edu.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.exception.TruckException;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.Truck;
 
@@ -21,6 +22,7 @@ public class TruckService {
     private static final int FIRST_ROW_INDEX = 0;
     private static final int FIRST_PART = 0;
     private static final int SECOND_PART = 1;
+    private static final int CURRENT_TRUCK_INDEX = 0;
     private final PackingService packingService;
 
     /**
@@ -44,10 +46,10 @@ public class TruckService {
             for (String providedTruckSize : trucksFromArgs) {
                 trucks.add(createTruck(providedTruckSize));
             }
-            if (!isEvenAlgorithm) {
-                placePackages(packageList, trucks);
-            } else {
+            if (isEvenAlgorithm) {
                 distributePackagesEvenly(packageList, trucks);
+            } else {
+                placePackages(packageList, trucks);
             }
         }
 
@@ -68,7 +70,7 @@ public class TruckService {
         }
         int totalPackages = packages.size();
         int numberOfTrucks = trucks.size();
-        int currentTruckIndex = 0;
+        int currentTruckIndex = CURRENT_TRUCK_INDEX;
 
         log.info("Распределяем {} посылок на {} грузовиков.", totalPackages, numberOfTrucks);
 
@@ -84,7 +86,7 @@ public class TruckService {
                 }
             }
             if (!isPlaced) {
-                throw new RuntimeException("Не хватает указанных грузовиков для размещения!");
+                throw new TruckException("Не хватает указанных грузовиков для размещения!");
             }
         }
         log.info("Все посылки успешно распределены по грузовикам.");

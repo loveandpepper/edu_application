@@ -2,6 +2,7 @@ package org.hofftech.edu.factory;
 
 import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.ProcessorException;
+import org.hofftech.edu.mapper.PackageMapper;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
@@ -20,8 +21,9 @@ import org.hofftech.edu.service.commandprocessor.impl.LoadCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.StartCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.UnloadCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.UpdateCommandProcessor;
+import org.springframework.stereotype.Service;
 
-
+@Service
 @RequiredArgsConstructor
 public class CommandProcessorFactory {
 
@@ -31,14 +33,15 @@ public class CommandProcessorFactory {
     private final FileSavingService fileSavingService;
     private final ValidatorService validatorService;
     private final OrderManagerService orderManagerService;
+    private final PackageMapper packageMapper;
 
     public CommandProcessor createProcessor(CommandType commandType) {
         return switch (commandType) {
             case CREATE -> new CreateCommandProcessor(repository, validatorService);
-            case FIND -> new FindCommandProcessor(repository);
+            case FIND -> new FindCommandProcessor(repository, packageMapper);
             case UPDATE -> new UpdateCommandProcessor(repository, validatorService);
             case DELETE -> new DeleteCommandProcessor(repository);
-            case LIST -> new ListCommandProcessor(repository);
+            case LIST -> new ListCommandProcessor(repository, packageMapper);
             case LOAD -> new LoadCommandProcessor(fileProcessingService);
             case UNLOAD -> new UnloadCommandProcessor(jsonProcessingService, fileSavingService);
             case BILLING -> new BillingCommandProcessor(orderManagerService);

@@ -7,11 +7,14 @@ import org.hofftech.edu.mapper.PackageMapper;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class FindCommandProcessor implements CommandProcessor {
 
     private final PackageRepository packageRepository;
+    private final PackageMapper packageMapper;
 
     @Override
     public Object execute(ParsedCommand command) {
@@ -21,7 +24,7 @@ public class FindCommandProcessor implements CommandProcessor {
         }
 
         return packageRepository.findPackage(name)
-                .map(PackageMapper.INSTANCE::toDto)
+                .map(packageMapper::toDto)
                 .orElseThrow(() -> new PackageNotFoundException(
                         "Посылка с именем '" + name + "' не найдена."
                 ));

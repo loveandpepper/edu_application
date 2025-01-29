@@ -21,10 +21,8 @@ public class PackingStrategyFactory {
      * @return объект стратегии упаковки
      */
     public PackingStrategy createStrategy(boolean ifEasyAlgorithm) {
-        if (ifEasyAlgorithm) {
-            return new IndividualTruckStrategy(truckService);
-        } else {
-            return new MultipleTruckStrategy(truckService);
-        }
+        return ifEasyAlgorithm
+                ? new IndividualTruckStrategy(truckService)
+                : new MultipleTruckStrategy(truckService);
     }
 }

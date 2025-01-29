@@ -12,12 +12,14 @@ import org.hofftech.edu.model.dto.requestdto.CreatePackageDto;
 import org.hofftech.edu.model.dto.requestdto.LoadPackageDto;
 import org.hofftech.edu.model.dto.requestdto.UnloadPackageDto;
 import org.hofftech.edu.model.dto.requestdto.UpdatePackageDto;
+import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-01-27T20:56:20+0300",
+    date = "2025-01-29T18:00:22+0300",
     comments = "version: 1.6.3, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.10.jar, environment: Java 21.0.4 (Oracle Corporation)"
 )
+@Component
 public class PackageMapperImpl implements PackageMapper {
 
     @Override
@@ -106,6 +108,7 @@ public class PackageMapperImpl implements PackageMapper {
 
         parsedCommand.setUser( dto.getUser() );
         parsedCommand.setInFile( dto.getInFile() );
+        parsedCommand.setWithCount( dto.isWithCount() );
 
         parsedCommand.setCommandType( CommandType.UNLOAD );
 

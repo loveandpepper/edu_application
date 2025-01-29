@@ -1,3 +1,6 @@
+app:
+  base-url: "http://localhost:8080/api/packages"
+
 server:
   port: 8081
 
@@ -11,6 +14,3 @@ logging:
     root: INFO
   file:
     name: logs/console-service.log
-
-business-service:
-  url: http://localhost:8080

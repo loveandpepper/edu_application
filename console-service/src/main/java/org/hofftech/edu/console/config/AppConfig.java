@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
  * Служит центральным местом для управления сервисами, контроллерами и утилитами.
  */
 @Configuration
-public class ShellConfig {
+public class AppConfig {
 
     @Bean
     public RestTemplate restTemplate() {

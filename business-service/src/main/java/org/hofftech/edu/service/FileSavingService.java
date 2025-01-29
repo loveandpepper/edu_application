@@ -1,6 +1,7 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.edu.exception.TxtSavingException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,8 +33,7 @@ public final class FileSavingService {
                 writePackageMapToFile(map, writer, isWithCount);
             }
         } catch (IOException e) {
-            log.error("Ошибка записи в файл: {}", e.getMessage());
-            throw e;
+            throw new TxtSavingException("Ошибка записи в файл: " + e.getMessage());
         }
 
         log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());

@@ -1,6 +1,7 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.PackageNotFoundException;
 import org.hofftech.edu.model.Package;
 import org.hofftech.edu.model.ParsedCommand;
@@ -11,7 +12,7 @@ import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UpdateCommandProcessor implements CommandProcessor {
 
     private static final int INDEX_OF_FIRST_SYMBOL = 0;

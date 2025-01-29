@@ -15,7 +15,7 @@ public class PackingService {
     private static final int START_Y_POSITION = 0;
     private static final int START_X_POSITION = 0;
     private static final char EMPTY_SPACE = ' ';
-    private int ROWLENGTH_FIRT_SYMBOL;
+    private static final int ROWLENGTH_FIRST_SYMBOL = 0;
 
     /**
      * Проверяет, может ли упаковка быть добавлена в указанную позицию грузовика.
@@ -47,8 +47,7 @@ public class PackingService {
     }
 
     private boolean isPackageSupported(Truck truck, Package pkg, int startX, int startY, String topRow, int support, double requiredSupport) {
-        ROWLENGTH_FIRT_SYMBOL = 0;
-        for (int x = ROWLENGTH_FIRT_SYMBOL; x < topRow.length(); x++) {
+        for (int x = ROWLENGTH_FIRST_SYMBOL; x < topRow.length(); x++) {
             if (topRow.charAt(x) != EMPTY_SPACE && truck.getGrid()[startY - 1][startX + x] != EMPTY_SPACE) {
                 support++;
             }

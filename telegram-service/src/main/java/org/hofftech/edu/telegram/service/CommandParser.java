@@ -19,9 +19,24 @@ import java.util.regex.Pattern;
 @Service
 public class CommandParser {
 
-    private static final String COMMAND_REGEX = "\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)";
+    private static final Pattern PATTERN = Pattern.compile("\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)");
     private static final int GROUP_ONE = 1;
     private static final int GROUP_TWO = 2;
+    private static final String NAME_KEY = "name";
+    private static final String FORM_KEY = "form";
+    private static final String SYMBOL_KEY = "symbol";
+    private static final String OLD_NAME_KEY = "oldName";
+    private static final String PARCELS_TEXT_KEY = "parcelsText";
+    private static final String TRUCKS_KEY = "trucks";
+    private static final String USER_KEY = "user";
+    private static final String EVEN_KEY = "even";
+    private static final String EASY_KEY = "easy";
+    private static final String SAVE_KEY = "save";
+    private static final String DEFAULT_VALUE = "false";
+    private static final String IN_FILE_KEY = "inFile";
+    private static final String WITH_COUNT_KEY = "withCount";
+    private static final String FROM_KEY = "from";
+    private static final String TO_KEY = "to";
 
     /**
      * Извлечение параметров из строки команды.
@@ -31,8 +46,7 @@ public class CommandParser {
      */
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
-        Pattern pattern = Pattern.compile(COMMAND_REGEX);
-        Matcher matcher = pattern.matcher(command);
+        Matcher matcher = PATTERN.matcher(command);
 
         while (matcher.find()) {
             String key = matcher.group(GROUP_ONE);
@@ -52,9 +66,9 @@ public class CommandParser {
     public CreateCommandDto parseToCreateDto(String command) {
         Map<String, String> parameters = extractParameters(command);
         CreateCommandDto dto = new CreateCommandDto();
-        dto.setName(parameters.get("name"));
-        dto.setForm(parameters.get("form"));
-        dto.setSymbol(parameters.get("symbol"));
+        dto.setName(parameters.get(NAME_KEY));
+        dto.setForm(parameters.get(FORM_KEY));
+        dto.setSymbol(parameters.get(SYMBOL_KEY));
         return dto;
     }
 
@@ -64,10 +78,10 @@ public class CommandParser {
     public UpdateCommandDto parseToUpdateDto(String command) {
         Map<String, String> parameters = extractParameters(command);
         UpdateCommandDto dto = new UpdateCommandDto();
-        dto.setOldName(parameters.get("oldName"));
-        dto.setName(parameters.get("name"));
-        dto.setForm(parameters.get("form"));
-        dto.setSymbol(parameters.get("symbol"));
+        dto.setOldName(parameters.get(OLD_NAME_KEY));
+        dto.setName(parameters.get(NAME_KEY));
+        dto.setForm(parameters.get(FORM_KEY));
+        dto.setSymbol(parameters.get(SYMBOL_KEY));
         return dto;
     }
 
@@ -77,12 +91,12 @@ public class CommandParser {
     public LoadCommandDto parseToLoadDto(String command) {
         Map<String, String> parameters = extractParameters(command);
         LoadCommandDto dto = new LoadCommandDto();
-        dto.setParcelsText(parameters.get("parcelsText"));
-        dto.setTrucks(parameters.get("trucks"));
-        dto.setUser(parameters.get("user"));
-        dto.setEven(Boolean.parseBoolean(parameters.getOrDefault("even", "false")));
-        dto.setEasy(Boolean.parseBoolean(parameters.getOrDefault("easy", "false")));
-        dto.setSave(Boolean.parseBoolean(parameters.getOrDefault("save", "false")));
+        dto.setParcelsText(parameters.get(PARCELS_TEXT_KEY));
+        dto.setTrucks(parameters.get(TRUCKS_KEY));
+        dto.setUser(parameters.get(USER_KEY));
+        dto.setEven(Boolean.parseBoolean(parameters.getOrDefault(EVEN_KEY, DEFAULT_VALUE)));
+        dto.setEasy(Boolean.parseBoolean(parameters.getOrDefault(EASY_KEY, DEFAULT_VALUE)));
+        dto.setSave(Boolean.parseBoolean(parameters.getOrDefault(SAVE_KEY, DEFAULT_VALUE)));
         return dto;
     }
 
@@ -92,9 +106,9 @@ public class CommandParser {
     public UnloadCommandDto parseToUnloadDto(String command) {
         Map<String, String> parameters = extractParameters(command);
         UnloadCommandDto dto = new UnloadCommandDto();
-        dto.setInFile(parameters.get("inFile"));
-        dto.setUser(parameters.get("user"));
-        dto.setWithCount(Boolean.parseBoolean(parameters.getOrDefault("withCount", "false")));
+        dto.setInFile(parameters.get(IN_FILE_KEY));
+        dto.setUser(parameters.get(USER_KEY));
+        dto.setWithCount(Boolean.parseBoolean(parameters.getOrDefault(WITH_COUNT_KEY, DEFAULT_VALUE)));
         return dto;
     }
 
@@ -104,9 +118,9 @@ public class CommandParser {
     public BillingCommandDto parseToBillingDto(String command) {
         Map<String, String> parameters = extractParameters(command);
         BillingCommandDto dto = new BillingCommandDto();
-        dto.setUser(parameters.get("user"));
-        dto.setFrom(parameters.get("from"));
-        dto.setTo(parameters.get("to"));
+        dto.setUser(parameters.get(USER_KEY));
+        dto.setFrom(parameters.get(FROM_KEY));
+        dto.setTo(parameters.get(TO_KEY));
         return dto;
     }
 }
