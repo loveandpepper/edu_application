@@ -1,0 +1,16 @@
+app:
+  base-url: "http://localhost:8080/api/packages"
+
+server:
+  port: 8081
+
+spring:
+  shell:
+    interactive:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+  file:
+    name: logs/console-service.log

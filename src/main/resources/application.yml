@@ -1,9 +1,0 @@
-telegram:
-  bot:
-    token: ${TELEGRAM_BOT_TOKEN}
-    name: ${TELEGRAM_BOT_NAME}
-
-spring:
-  shell:
-    interactive:
-      enabled: true
