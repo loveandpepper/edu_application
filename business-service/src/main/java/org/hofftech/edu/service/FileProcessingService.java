@@ -3,7 +3,6 @@ package org.hofftech.edu.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.exception.FileParsingException;
-import org.hofftech.edu.exception.JsonSavingException;
 import org.hofftech.edu.factory.PackingStrategyFactory;
 import org.hofftech.edu.model.Order;
 import org.hofftech.edu.model.OrderOperationType;
@@ -94,20 +93,19 @@ public class FileProcessingService {
         }
         return packages;
     }
+
     /**
      * Сохраняет данные о грузовиках в формате JSON.
      *
      * @param trucks список грузовиков для сохранения
      */
     protected void saveTrucksToJson(List<Truck> trucks) {
-        try {
-            log.info("Сохраняем данные грузовиков в JSON...");
-            String result = jsonProcessingService.saveToJson(trucks);
-            log.info("Данные успешно сохранены в JSON: {}", result);
-        } catch (Exception e) {
-            throw new JsonSavingException("Ошибка при сохранении данных в JSON: " + e.getMessage());
-        }
+        log.info("Сохраняем данные грузовиков в JSON...");
+        String result = jsonProcessingService.saveToJson(trucks);
+        log.info("Данные успешно сохранены в JSON: {}", result);
+
     }
+
     /**
      * Разбирает строки файла и преобразует их в список упаковок.
      *

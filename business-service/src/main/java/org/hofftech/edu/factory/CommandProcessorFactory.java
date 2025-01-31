@@ -23,7 +23,6 @@ import org.hofftech.edu.service.commandprocessor.impl.UnloadCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.UpdateCommandProcessor;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class CommandProcessorFactory {
 

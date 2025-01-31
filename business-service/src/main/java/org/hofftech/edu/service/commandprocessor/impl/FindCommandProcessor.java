@@ -9,7 +9,6 @@ import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class FindCommandProcessor implements CommandProcessor {
 
@@ -23,7 +22,7 @@ public class FindCommandProcessor implements CommandProcessor {
             throw new PackageNameException("Имя посылки не указано");
         }
 
-        return packageRepository.findPackage(name)
+        return packageRepository.findById(name)
                 .map(packageMapper::toDto)
                 .orElseThrow(() -> new PackageNotFoundException(
                         "Посылка с именем '" + name + "' не найдена."

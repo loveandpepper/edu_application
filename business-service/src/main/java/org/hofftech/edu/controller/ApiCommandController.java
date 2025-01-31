@@ -55,11 +55,9 @@ public class ApiCommandController {
             @ApiResponse(responseCode = "200", description = "Посылка успешно обновлена"),
             @ApiResponse(responseCode = "400", description = "Ошибка в запросе")
     })
-    @PutMapping("/{name}")
-    public ResponseEntity<String> update(@PathVariable String name,
-                                         @RequestBody UpdatePackageDto dto) {
+    @PutMapping("/")
+    public ResponseEntity<String> update(@RequestBody UpdatePackageDto dto) {
         ParsedCommand command = packageMapper.toParsedCommand(dto);
-        command.setName(name);
 
         CommandProcessor processor = processorFactory.createProcessor(command.getCommandType());
         String result = (String) processor.execute(command);

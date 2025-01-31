@@ -22,7 +22,10 @@ public class TelegramHandlerFactory {
         log.info("Инициализировано {} команд: {}", handlers.size(), handlers.keySet());
     }
 
-    public Optional<CommandHandler> getHandler(String commandName) {
-        return Optional.ofNullable(handlers.get(commandName));
+    public CommandHandler getHandler(String commandName) {
+        return Optional.ofNullable(handlers.get(commandName))
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Нет хендлера для команды: " + commandName
+                ));
     }
 }

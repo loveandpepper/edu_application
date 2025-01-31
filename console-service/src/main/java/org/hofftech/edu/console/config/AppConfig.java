@@ -1,6 +1,7 @@
 package org.hofftech.edu.console.config;
 
 import org.hofftech.edu.console.service.CommandParser;
+import org.hofftech.edu.console.service.ShellCommandService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +21,11 @@ public class AppConfig {
     @Bean
     public CommandParser commandParser() {
         return new CommandParser();
+    }
+
+    @Bean
+    ShellCommandService shellCommandService() {
+        return new ShellCommandService(restTemplate(), commandParser());
     }
 
 }

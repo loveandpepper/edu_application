@@ -9,6 +9,8 @@ import org.hofftech.edu.telegram.dto.LoadCommandDto;
 import org.hofftech.edu.telegram.dto.UnloadCommandDto;
 import org.hofftech.edu.telegram.dto.UpdateCommandDto;
 import org.hofftech.edu.telegram.exception.RegisterBotException;
+import org.hofftech.edu.telegram.exception.TelegramHandleException;
+import org.hofftech.edu.telegram.handler.CommandHandler;
 import org.hofftech.edu.telegram.service.CommandParser;
 import org.hofftech.edu.telegram.service.TelegramHandlerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,9 +37,6 @@ public class TelegramBotController extends TelegramLongPollingBot {
     private final String botName;
     private final TelegramHandlerFactory telegramHandlerFactory;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
-
     @Override
     public String getBotUsername() {
         return botName;
@@ -56,8 +55,7 @@ public class TelegramBotController extends TelegramLongPollingBot {
             try {
                 handleCommand(message, chatId);
             } catch (Exception e) {
-                log.error("Ошибка обработки команды: {}", e.getMessage());
-                sendErrorMessage(chatId, "Ошибка выполнения команды.");
+                throw new TelegramHandleException("Ошибка обработки команды: " + e.getMessage());
             }
         }
     }
@@ -75,21 +73,14 @@ public class TelegramBotController extends TelegramLongPollingBot {
     }
 
     private void handleCommand(String command, Long chatId) {
-        String[] parts = command.split("\\s+", 2);
+        String[] parts = command.split("\\s", 2);
         String commandName = parts[0].toLowerCase();
 
-        telegramHandlerFactory.getHandler(commandName).ifPresentOrElse(
-                handler -> {
-                    try {
-                        String result = handler.handle(command);
-                        sendResponse(chatId, result);
-                    } catch (Exception e) {
-                        log.error("Ошибка в хендлере '{}': {}", commandName, e.getMessage(), e);
-                        sendErrorMessage(chatId, "Ошибка при выполнении " + commandName + ": " + e.getMessage());
-                    }
-                },
-                () -> sendErrorMessage(chatId, "Неизвестная команда: " + commandName)
-        );
+        CommandHandler handler = telegramHandlerFactory.getHandler(commandName);
+
+
+        String result = handler.handle(command);
+        sendResponse(chatId, result); //TODO:Возвращать эксепшены в тг
     }
 
     private void sendResponse(Long chatId, String message) {
@@ -101,18 +92,6 @@ public class TelegramBotController extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (Exception e) {
             log.error("Ошибка отправки ответа в Telegram: {}", e.getMessage());
-        }
-    }
-
-    private void sendErrorMessage(Long chatId, String errorMessage) {
-        try {
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(chatId.toString());
-            sendMessage.setText(errorMessage);
-            sendMessage.setParseMode(ParseMode.MARKDOWNV2);
-            execute(sendMessage);
-        } catch (Exception e) {
-            log.error("Ошибка отправки ошибки в Telegram: {}", e.getMessage());
         }
     }
 }

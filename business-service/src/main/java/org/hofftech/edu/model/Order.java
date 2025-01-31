@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,15 +34,20 @@ public class Order {
             return 0;
         }
 
-        int costPerSegment = operationType == OrderOperationType.LOAD ? LOAD_COST : UNLOAD_COST;
+        int costPerSegment = (operationType == OrderOperationType.LOAD)
+                ? LOAD_COST
+                : UNLOAD_COST;
 
         return packages.stream()
                 .mapToInt(pkg -> countSegments(pkg.getShape()) * costPerSegment)
                 .sum();
     }
 
-    private int countSegments(List<String> shape) {
-        return shape.stream()
+    private int countSegments(String[] shape) {
+        if (shape == null) {
+            return 0;
+        }
+        return Arrays.stream(shape)
                 .mapToInt(row -> (int) row.chars().filter(ch -> ch != ' ').count())
                 .sum();
     }

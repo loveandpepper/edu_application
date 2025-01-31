@@ -1,7 +1,6 @@
 package org.hofftech.edu.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import javax.annotation.processing.Generated;
 import org.hofftech.edu.model.CommandType;
 import org.hofftech.edu.model.Package;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-01-29T18:00:22+0300",
+    date = "2025-01-31T18:47:32+0300",
     comments = "version: 1.6.3, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.10.jar, environment: Java 21.0.4 (Oracle Corporation)"
 )
 @Component
@@ -31,9 +30,9 @@ public class PackageMapperImpl implements PackageMapper {
         PackageDto packageDto = new PackageDto();
 
         packageDto.setName( entity.getName() );
-        List<String> list = entity.getShape();
-        if ( list != null ) {
-            packageDto.setShape( new ArrayList<String>( list ) );
+        String[] shape = entity.getShape();
+        if ( shape != null ) {
+            packageDto.setShape( Arrays.copyOf( shape, shape.length ) );
         }
         packageDto.setSymbol( entity.getSymbol() );
         packageDto.setStartPositionX( entity.getStartPositionX() );

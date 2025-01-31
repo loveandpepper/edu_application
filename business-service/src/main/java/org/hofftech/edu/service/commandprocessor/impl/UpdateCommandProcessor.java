@@ -1,6 +1,6 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hofftech.edu.exception.PackageNotFoundException;
 import org.hofftech.edu.model.Package;
@@ -9,7 +9,7 @@ import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.ValidatorService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -19,42 +19,54 @@ public class UpdateCommandProcessor implements CommandProcessor {
     private final PackageRepository packageRepository;
     private final ValidatorService validatorService;
 
+    @Transactional
     @Override
     public String execute(ParsedCommand command) {
         String currentName = command.getOldName();
-        Package existingPackage = packageRepository.findPackage(currentName)
-                .orElseThrow(() -> new PackageNotFoundException("Посылка с именем '" + currentName + "' не найдена."));
+        Package existingPackage = packageRepository.findById(currentName)
+                .orElseThrow(() -> new PackageNotFoundException(
+                        "Посылка с именем '" + currentName + "' не найдена."
+                ));
+
+        String oldName = existingPackage.getName();
+        char oldSymbol = existingPackage.getSymbol();
+        String[] oldShape = existingPackage.getShape();
 
         String newName = Optional.ofNullable(command.getName())
-                .orElse(existingPackage.getName());
+                .orElse(oldName);
 
         char newSymbol = Optional.ofNullable(command.getSymbol())
-                .map(symbol -> symbol.charAt(INDEX_OF_FIRST_SYMBOL))
-                .orElse(existingPackage.getSymbol());
+                .map(s -> s.charAt(INDEX_OF_FIRST_SYMBOL))
+                .orElse(oldSymbol);
 
-        if (newSymbol != existingPackage.getSymbol()) {
-            existingPackage.updateSymbol(newSymbol);
-        }
-
-        List<String> newShape = Optional.ofNullable(command.getForm())
+        String[] newShape = Optional.ofNullable(command.getForm())
                 .map(validatorService::validateForm)
-                .orElse(existingPackage.getShape());
+                .orElse(oldShape);
+
+        if (newSymbol != oldSymbol) {
+            newShape = Arrays.stream(newShape)
+                    .map(line -> line.replace(oldSymbol, newSymbol))
+                    .toArray(String[]::new);
+        }
 
         Package updatedPackage = new Package(
                 newName,
                 newShape,
-                existingPackage.getSymbol(),
+                newSymbol,
                 existingPackage.getStartPositionX(),
                 existingPackage.getStartPositionY()
         );
 
-        packageRepository.updatePackage(currentName, updatedPackage);
+        packageRepository.deleteById(oldName);
+        packageRepository.save(updatedPackage);
 
-        StringBuilder output = new StringBuilder("Обновлённая посылка: " + updatedPackage.getName() + "\n");
-        newShape.forEach(shape -> output.append(shape).append('\n'));
+        StringBuilder output = new StringBuilder("Обновлённая посылка: ")
+                .append(updatedPackage.getName()).append("\n");
+
+        Arrays.stream(updatedPackage.getShape())
+                .forEach(shapeLine -> output.append(shapeLine).append("\n"));
+
         return output.toString();
     }
+
 }
-
-
-

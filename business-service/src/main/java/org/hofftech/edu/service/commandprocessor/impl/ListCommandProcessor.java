@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 public class ListCommandProcessor implements CommandProcessor {
 
@@ -22,18 +21,17 @@ public class ListCommandProcessor implements CommandProcessor {
 
     @Override
     public Object execute(ParsedCommand command) {
-        int page = command.getPage() != null ? command.getPage() : 0;
-        int size = command.getSize() != null ? command.getSize() : 10;
+        int page = (command.getPage() != null) ? command.getPage() : 0;
+        int size = (command.getSize() != null) ? command.getSize() : 10;
         Pageable pageable = PageRequest.of(page, size);
 
         List<Package> packages = packageRepository.getAllPackages(pageable);
+
         if (packages.isEmpty()) {
             throw new PackageNotFoundException("Посылки не найдены");
-        } else {
-            return packages.stream()
-                    .map(packageMapper::toDto)
-                    .toList();
         }
+        return packages.stream()
+                .map(packageMapper::toDto)
+                .toList();
     }
-
 }

@@ -27,28 +27,24 @@ public class LoadCommandProcessor implements CommandProcessor {
         boolean useEvenAlgorithm = command.isEven();
         boolean saveToFile = command.isSave();
 
-        try {
-            List<String> trucksFromArgs = trucksText != null && !trucksText.isEmpty()
-                    ? new ArrayList<>(List.of(trucksText.split(TRUCK_SPLITTER)))
-                    : new ArrayList<>();
+        List<String> trucksFromArgs = trucksText != null && !trucksText.isEmpty()
+                ? new ArrayList<>(List.of(trucksText.split(TRUCK_SPLITTER)))
+                : new ArrayList<>();
 
-            if (user == null || user.isEmpty()) {
-                throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
-            }
+        if (user == null || user.isEmpty()) {
+            throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
+        }
 
-            if (parcelsText != null && !parcelsText.isEmpty()) {
-                return fileProcessingService.processFile(
-                        null, parcelsText, trucksFromArgs, useEasyAlgorithm, saveToFile,
-                        useEvenAlgorithm, user);
-            } else if (parcelsFile != null && !parcelsFile.isBlank()) {
-                return fileProcessingService.processFile(
-                        Path.of(parcelsFile), null, trucksFromArgs, useEasyAlgorithm, saveToFile,
-                        useEvenAlgorithm, user);
-            } else {
-                throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
-            }
-        } catch (Exception e) {
-            throw new LoadException("Ошибка при погрузке: " + e.getMessage());
+        if (parcelsText != null && !parcelsText.isEmpty()) {
+            return fileProcessingService.processFile(
+                    null, parcelsText, trucksFromArgs, useEasyAlgorithm, saveToFile,
+                    useEvenAlgorithm, user);
+        } else if (parcelsFile != null && !parcelsFile.isBlank()) {
+            return fileProcessingService.processFile(
+                    Path.of(parcelsFile), null, trucksFromArgs, useEasyAlgorithm, saveToFile,
+                    useEvenAlgorithm, user);
+        } else {
+            throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
         }
     }
 }

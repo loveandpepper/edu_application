@@ -1,7 +1,7 @@
 package org.hofftech.edu.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.exception.TxtSavingException;
+import org.hofftech.edu.exception.TxtUnloadException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,9 +22,8 @@ public final class FileSavingService {
      * @param packages       список карт: каждая карта - имя посылки, а значение - количество.
      * @param outputFilePath путь к выходному файлу.
      * @param isWithCount      если true, пишется имя посылки с количеством; иначе только имена посылок.
-     * @throws IOException если произошла ошибка при записи в файл.
      */
-    public void savePackagesToFile(List<Map<String, Long>> packages, String outputFilePath, boolean isWithCount) throws IOException {
+    public void savePackagesToFile(List<Map<String, Long>> packages, String outputFilePath, boolean isWithCount){
         File outputFile = new File(outputFilePath);
         log.info("Начинаем запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
 
@@ -33,7 +32,7 @@ public final class FileSavingService {
                 writePackageMapToFile(map, writer, isWithCount);
             }
         } catch (IOException e) {
-            throw new TxtSavingException("Ошибка записи в файл: " + e.getMessage());
+            throw new TxtUnloadException("Ошибка записи в файл: " + e.getMessage());
         }
 
         log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());
@@ -45,9 +44,8 @@ public final class FileSavingService {
      * @param map       карта: имя посылки - количество.
      * @param writer    BufferedWriter для записи в файл.
      * @param withCount если true, записывается с количеством.
-     * @throws IOException если произошла ошибка при записи в файл.
      */
-    private void writePackageMapToFile(Map<String, Long> map, BufferedWriter writer, boolean withCount) throws IOException {
+    private void writePackageMapToFile(Map<String, Long> map, BufferedWriter writer, boolean withCount) {
         for (String key : map.keySet()) {
             if (withCount) {
                 writeLineWithCount(writer, key, map.get(key));
@@ -63,12 +61,16 @@ public final class FileSavingService {
      * @param writer BufferedWriter для записи в файл.
      * @param key    имя посылки.
      * @param value  количество посылок.
-     * @throws IOException если произошла ошибка при записи в файл.
      */
-    private void writeLineWithCount(BufferedWriter writer, String key, Long value) throws IOException {
+    private void writeLineWithCount(BufferedWriter writer, String key, Long value) {
         String line = String.format("%s - %d шт", key, value);
-        writer.write(line);
-        writer.newLine();
+        try {
+            writer.write(line);
+            writer.newLine();
+        } catch (IOException e) {
+            throw new TxtUnloadException(e.getMessage());
+        }
+
     }
 
     /**
@@ -77,12 +79,15 @@ public final class FileSavingService {
      * @param writer BufferedWriter для записи в файл.
      * @param key    имя посылки.
      * @param value  количество посылок.
-     * @throws IOException если произошла ошибка при записи в файл.
      */
-    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) throws IOException {
+    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) {
         for (int i = 0; i < value; i++) {
-            writer.write(key);
-            writer.newLine();
+            try {
+                writer.write(key);
+                writer.newLine();
+            } catch (IOException e) {
+                throw new TxtUnloadException(e.getMessage());
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import org.hofftech.edu.controller.ApiCommandController;
 //import org.hofftech.edu.controller.TelegramBotController;
 import org.hofftech.edu.factory.CommandProcessorFactory;
 import org.hofftech.edu.factory.PackingStrategyFactory;
+import org.hofftech.edu.mapper.PackageMapper;
 import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
 import org.hofftech.edu.service.FileSavingService;
@@ -40,11 +41,6 @@ public class SpringConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
-    }
-
-    @Bean
-    public PackageRepository packageRepository(JdbcTemplate jdbcTemplate) {
-        return new PackageRepository(jdbcTemplate);
     }
 
     @Bean
@@ -112,7 +108,25 @@ public class SpringConfig {
         return new FileSavingService();
     }
 
-
+    @Bean
+    public CommandProcessorFactory commandProcessorFactory(
+            PackageRepository packageRepository,
+            FileProcessingService fileProcessingService,
+            JsonProcessingService jsonProcessingService,
+            FileSavingService fileSavingService,
+            ValidatorService validatorService,
+            OrderManagerService orderManagerService,
+            PackageMapper packageMapper
+    ) {
+        return new CommandProcessorFactory(
+                packageRepository,
+                fileProcessingService,
+                jsonProcessingService,
+                fileSavingService,
+                validatorService,
+                orderManagerService,
+                packageMapper);
+    }
 }
 
 

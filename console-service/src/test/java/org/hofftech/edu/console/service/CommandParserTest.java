@@ -5,11 +5,9 @@ import org.hofftech.edu.console.model.dto.CreateCommandDto;
 import org.hofftech.edu.console.model.dto.LoadCommandDto;
 import org.hofftech.edu.console.model.dto.UnloadCommandDto;
 import org.hofftech.edu.console.model.dto.UpdateCommandDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,11 +17,6 @@ class CommandParserTest {
 
     @InjectMocks
     private CommandParser commandParser;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void parseToCreateDto_shouldParseNameFormAndSymbol() {

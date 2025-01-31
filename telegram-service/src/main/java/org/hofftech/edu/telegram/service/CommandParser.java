@@ -16,10 +16,10 @@ import java.util.regex.Pattern;
  * Сервис для разбора строк команд.
  * Преобразует команды в объекты DTO в зависимости от CommandType.
  */
-@Service
+
 public class CommandParser {
 
-    private static final Pattern PATTERN = Pattern.compile("\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)");
+    private static final Pattern RAW_COMMAND_PATTERN = Pattern.compile("\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)");
     private static final int GROUP_ONE = 1;
     private static final int GROUP_TWO = 2;
     private static final String NAME_KEY = "name";
@@ -46,7 +46,7 @@ public class CommandParser {
      */
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
-        Matcher matcher = PATTERN.matcher(command);
+        Matcher matcher = RAW_COMMAND_PATTERN.matcher(command);
 
         while (matcher.find()) {
             String key = matcher.group(GROUP_ONE);

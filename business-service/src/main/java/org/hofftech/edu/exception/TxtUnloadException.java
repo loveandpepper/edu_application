@@ -3,9 +3,9 @@ package org.hofftech.edu.exception;
 /**
  * Исключение разгрузки в txt
  */
-public class TxtSavingException extends RuntimeException {
+public class TxtUnloadException extends RuntimeException {
 
-    public TxtSavingException(String message) {
+    public TxtUnloadException(String message) {
         super(message);
     }
 }

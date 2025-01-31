@@ -1,11 +1,19 @@
 package org.hofftech.edu.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,23 +21,44 @@ import java.util.List;
  * Класс, представляющий упаковку.
  * Содержит информацию о свойствах упаковки.
  */
+
+@Entity
+@Table(schema = "edu", name = "\"package\"")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Package implements Comparable<Package> {
+
+    @Id
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
-    private List<String> shape;
+
+    /**
+     * Хранение массива строк (text[]) в PostgreSQL.
+     *
+     * Hibernate 6 позволяет указать @JdbcTypeCode(SqlTypes.ARRAY),
+     * чтобы корректно маппить колонку типа text[] к String[].
+     */
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "shape", columnDefinition = "text[]", nullable = false)
+    private String[] shape;
+
+    @Column(nullable = false, length = 1)
     private char symbol;
+
+    @Column(name = "start_position_x", nullable = false)
     private int startPositionX;
+
+    @Column(name = "start_position_y", nullable = false)
     private int startPositionY;
 
     public int getWidth() {
-        return shape.getFirst().length();
+        return shape[0].length();
     }
 
     public int getHeight() {
-        return shape.size();
+        return shape.length;
     }
 
     /**
@@ -39,17 +68,15 @@ public class Package implements Comparable<Package> {
      * @param newSymbol новый символ для упаковки.
      */
     public void updateSymbol(char newSymbol) {
-        if (shape == null || shape.isEmpty()) {
+        if (shape == null || shape.length == 0) {
             return;
         }
 
-        List<String> updatedShape = new ArrayList<>();
-        for (String row : shape) {
-            String updatedRow = row.replace(symbol, newSymbol);
-            updatedShape.add(updatedRow);
+        String[] updatedShape = new String[shape.length];
+        for (int i = 0; i < shape.length; i++) {
+            updatedShape[i] = shape[i].replace(symbol, newSymbol);
         }
         this.shape = updatedShape;
-        this.symbol = newSymbol;
     }
 
     /**
@@ -58,10 +85,17 @@ public class Package implements Comparable<Package> {
      *
      * @return перевёрнутая форма упаковки.
      */
-    public List<String> getReversedShape() {
-        List<String> reversedShape = new ArrayList<>(this.shape);
-        Collections.reverse(reversedShape);
-        return reversedShape;
+    public String[] getReversedShape() {
+        if (this.shape == null || this.shape.length == 0) {
+            return new String[0];
+        }
+        String[] reversed = Arrays.copyOf(this.shape, this.shape.length);
+        for (int i = 0; i < reversed.length / 2; i++) {
+            String temp = reversed[i];
+            reversed[i] = reversed[reversed.length - 1 - i];
+            reversed[reversed.length - 1 - i] = temp;
+        }
+        return reversed;
     }
 
     /**

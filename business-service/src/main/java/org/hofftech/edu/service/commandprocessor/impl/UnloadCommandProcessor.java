@@ -36,13 +36,9 @@ public class UnloadCommandProcessor implements CommandProcessor {
             throw new UserNotProvidedException("Пользователь должен быть передан для комынды UNLOAD");
         }
 
-        try {
-            List<Map<String, Long>> packageCountMap = jsonProcessingService.importPackagesFromJson(inFile,
-                    isWithCount, user);
-            fileSavingService.savePackagesToFile(packageCountMap, OUTPUT_FILE_PATH, isWithCount);
-            return "Файл успешно импортирован из JSON: " + inFile;
-        } catch (IOException e) {
-            throw new UnloadException("Ошибка при обработке команды importJson: " + e.getMessage());
-        }
+        List<Map<String, Long>> packageCountMap = jsonProcessingService.importPackagesFromJson(inFile,
+                isWithCount, user);
+        fileSavingService.savePackagesToFile(packageCountMap, OUTPUT_FILE_PATH, isWithCount);
+        return "Файл успешно импортирован из JSON: " + inFile;
     }
 }

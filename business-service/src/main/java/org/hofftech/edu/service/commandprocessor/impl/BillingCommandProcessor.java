@@ -10,11 +10,6 @@ import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 public class BillingCommandProcessor implements CommandProcessor {
     private final OrderManagerService orderManagerService;
 
-    private boolean isArgumentsNotEmpty(String user, String dateFrom, String dateTo) {
-        return user != null && dateFrom != null && dateTo != null &&
-                !user.isEmpty() && !dateFrom.isEmpty() && !dateTo.isEmpty();
-    }
-
     @Override
     public String execute(ParsedCommand command) {
         String user = command.getUser();
@@ -26,5 +21,14 @@ public class BillingCommandProcessor implements CommandProcessor {
         }
         return orderManagerService.generateReport(user, dateFrom, dateTo);
 
+    }
+
+    private boolean isArgumentsNotEmpty(String user, String dateFrom, String dateTo) {
+        return user != null &&
+                dateFrom != null &&
+                dateTo != null &&
+                !user.isEmpty() &&
+                !dateFrom.isEmpty() &&
+                !dateTo.isEmpty();
     }
 }

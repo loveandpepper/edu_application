@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.RestClientException;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class ShellCommandService {
 

@@ -8,7 +8,7 @@ import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.ValidatorService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
-import java.util.List;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 public class CreateCommandProcessor implements CommandProcessor {
@@ -23,18 +23,27 @@ public class CreateCommandProcessor implements CommandProcessor {
     public String execute(ParsedCommand command) {
         String name = command.getName();
         String form = command.getForm();
-        char symbol = command.getSymbol() != null ? command.getSymbol().charAt(FIRST_CHAR_INDEX) : ' ';
+        char symbol = (command.getSymbol() != null)
+                ? command.getSymbol().charAt(FIRST_CHAR_INDEX)
+                : ' ';
 
         if (name == null || form == null) {
             throw new PackageArgumentException("Недостаточно данных для создания посылки");
         }
 
-        List<String> shape = validatorService.validateForm(form);
-        Package newPackage = new Package(name, shape, symbol, POSITION_START_INDEX, POSITION_START_INDEX);
-        packageRepository.addPackage(newPackage);
+        String[] shape = validatorService.validateForm(form);
 
-        StringBuilder output = new StringBuilder("Создана посылка: " + newPackage.getName() + "\nФорма посылки:\n");
-        shape.forEach(line -> output.append(line).append("\n"));
+        Package newPackage = new Package(
+                name, shape, symbol, 0, 0
+        );
+        packageRepository.save(newPackage);
+
+        StringBuilder output = new StringBuilder("Создана посылка: ")
+                .append(newPackage.getName())
+                .append("\nФорма посылки:\n");
+
+        Arrays.stream(shape).forEach(line -> output.append(line).append("\n"));
+
         return output.toString();
     }
 }

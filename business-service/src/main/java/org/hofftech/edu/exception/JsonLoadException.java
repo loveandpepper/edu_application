@@ -3,9 +3,9 @@ package org.hofftech.edu.exception;
 /**
  * Исключение сохранения в json
  */
-public class JsonSavingException extends RuntimeException {
+public class JsonLoadException extends RuntimeException {
 
-    public JsonSavingException(String message) {
+    public JsonLoadException(String message) {
         super(message);
     }
 }

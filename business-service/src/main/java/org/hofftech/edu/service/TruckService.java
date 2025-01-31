@@ -46,7 +46,7 @@ public class TruckService {
             for (String providedTruckSize : trucksFromArgs) {
                 trucks.add(createTruck(providedTruckSize));
             }
-            if (isEvenAlgorithm) {
+            if (isEvenAlgorithm.equals(Boolean.TRUE)) {
                 distributePackagesEvenly(packageList, trucks);
             } else {
                 placePackages(packageList, trucks);

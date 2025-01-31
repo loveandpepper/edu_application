@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Конфигурационный класс для телеграм-бота
  */
-@Slf4j
+
 @Configuration
 public class TelegramConfig {
 

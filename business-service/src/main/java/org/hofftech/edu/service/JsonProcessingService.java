@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.exception.InputFileException;
+import org.hofftech.edu.exception.JsonLoadException;
+import org.hofftech.edu.exception.JsonUnloadException;
 import org.hofftech.edu.model.Order;
 import org.hofftech.edu.model.OrderOperationType;
 import org.hofftech.edu.model.Package;
@@ -59,8 +61,7 @@ public class JsonProcessingService {
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
-            log.error("Ошибка при записи JSON: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new JsonLoadException("Ошибка при сохранении в Json");
         }
     }
 
@@ -85,7 +86,7 @@ public class JsonProcessingService {
                     }
             );
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка маппинга: " + e.getMessage());
+            throw new JsonUnloadException("Ошибка маппинга: " + e.getMessage());
         }
         List<Package> packages = new ArrayList<>();
         List<TruckDto> trucks = jsonData.get(TRUCKS_ARRAY);
@@ -170,7 +171,7 @@ public class JsonProcessingService {
     private File createFile() {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists() && !outputDir.mkdirs()) {
-            throw new RuntimeException("Не удалось создать папку для файла Json");
+            throw new JsonLoadException("Не удалось создать папку для файла Json");
         }
         return new File(outputDir, FILE_NAME);
     }

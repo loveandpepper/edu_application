@@ -15,7 +15,7 @@ public class ValidatorService {
     private static final String FORM_SPLITTER = ",";
     private static final int FIRST_ROW_INDEX = 0;
 
-    private static void checkSymbolsBelowShape(String currentRow, String nextRow, int i) {
+    private static void checkSymbolsBelowShape(String currentRow, String nextRow) {
         for (int j = FIRST_ROW_INDEX; j < currentRow.length(); j++) {
             char current = currentRow.charAt(j);
 
@@ -25,7 +25,7 @@ public class ValidatorService {
                 boolean hasBottom = j < nextRow.length() && nextRow.charAt(j) != ' ';
 
                 if ((!hasLeft && !hasBottom) || (!hasRight && !hasBottom)) {
-                    throw new ValidateException("Символ в позиции (" + i + ", " + j + ") висит в воздухе.");
+                    throw new ValidateException("Символ висит в воздухе");
                 }
             }
         }
@@ -38,18 +38,18 @@ public class ValidatorService {
      * @return список строк, представляющих форму
      * @throws IllegalArgumentException если форма не указана или некорректна
      */
-    public List<String> validateForm(String form) {
+    public String[] validateForm(String form) {
         if (form == null || form.isEmpty()) {
             throw new ValidateException("Форма посылки не указана.");
         }
 
         if (form.contains(FORM_SPLITTER)) {
-            List<String> rows = List.of(form.split(FORM_SPLITTER));
+            String[] rows = form.split(FORM_SPLITTER);
             validateDiagonalTouch(rows);
             return rows;
         }
 
-        return List.of(form);
+        return form.split(FORM_SPLITTER);
     }
 
     /**
@@ -58,14 +58,14 @@ public class ValidatorService {
      * @param rows список строк, представляющих форму посылки
      * @throws IllegalArgumentException если форма содержит некорректное диагональное соединение
      */
-    public void validateDiagonalTouch(List<String> rows) {
-        int height = rows.size();
+    public void validateDiagonalTouch(String[] rows) {
+        int height = rows.length;
 
         for (int i = FIRST_ROW_INDEX; i < height - 1; i++) {
-            String currentRow = rows.get(i);
-            String nextRow = rows.get(i + 1);
+            String currentRow = rows[i];
+            String nextRow = rows[i + 1];
 
-            checkSymbolsBelowShape(currentRow, nextRow, i);
+            checkSymbolsBelowShape(currentRow, nextRow);
         }
     }
 
