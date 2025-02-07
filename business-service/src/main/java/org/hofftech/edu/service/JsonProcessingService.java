@@ -40,7 +40,7 @@ public class JsonProcessingService {
     private static final String TRUCK_SIZE_SPLITTER = "x";
     private final ObjectMapper objectMapper;
     private final Clock clock;
-    private final OrderManagerService orderManagerService;
+    private final OutboxEventService outboxEventService;
     /**
      * Сохраняет данные о грузовиках в JSON-файл и возвращает строковое представление JSON.
      *
@@ -103,6 +103,7 @@ public class JsonProcessingService {
         }
     }
 
+
     public void addUnloadOrder(List<TruckDto> trucks, List<Package> packages, String userId) {
         Order order = new Order(
                 userId,
@@ -111,10 +112,11 @@ public class JsonProcessingService {
                 trucks.size(),
                 packages
         );
+        outboxEventService.saveOrderEvent(order, "ORDER_CREATED");
 
-        orderManagerService.addOrder(order);
-        log.info("Добавлен заказ на рагрузку для {}", userId);
+        log.info("Добавлен заказ на разгрузку для {}", userId);
     }
+
 
     private List<Map<String, Long>> getIndividualPackages(List<Package> packages) {
         return packages.stream()

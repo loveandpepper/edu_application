@@ -62,24 +62,6 @@ public class Package implements Comparable<Package> {
     }
 
     /**
-     * Обновляет символ упаковки на новый.
-     * Также заменяет старый символ на новый во всех строках формы упаковки.
-     *
-     * @param newSymbol новый символ для упаковки.
-     */
-    public void updateSymbol(char newSymbol) {
-        if (shape == null || shape.length == 0) {
-            return;
-        }
-
-        String[] updatedShape = new String[shape.length];
-        for (int i = 0; i < shape.length; i++) {
-            updatedShape[i] = shape[i].replace(symbol, newSymbol);
-        }
-        this.shape = updatedShape;
-    }
-
-    /**
      * Возвращает перевёрнутую форму упаковки.
      * Формирует новый список строк, в котором порядок строк обратный оригиналу.
      *

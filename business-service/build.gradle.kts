@@ -11,6 +11,12 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+    }
+}
+
 val versions = mapOf(
     "jackson" to "2.15.2",
     "lombok" to "1.18.30",
@@ -23,7 +29,12 @@ val versions = mapOf(
     "flyway" to "11.2.0",
     "flywayPostgresql" to "11.2.0",
     "mapStruct" to "1.6.3",
-    "openApi" to "2.8.3"
+    "caffeine" to "3.2.0",
+    "openApi" to "2.8.3",
+    "cloud-stream" to "4.2.0",
+    "testcontainers" to "1.20.4",
+    "spring-test-cont" to "3.4.1"
+
 )
 
 dependencies {
@@ -33,12 +44,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.shell:spring-shell-starter:${versions["springShell"]}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core:${versions["flyway"]}")
     implementation("org.mapstruct:mapstruct:${versions["mapStruct"]}")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["openApi"]}")
     implementation("org.postgresql:postgresql")
+    implementation("org.springframework.cloud:spring-cloud-stream:${versions["cloud-stream"]}")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
+    implementation("com.github.ben-manes.caffeine:caffeine:${versions["caffeine"]}")
 
     runtimeOnly("org.flywaydb:flyway-database-postgresql:${versions["flywayPostgresql"]}")
     compileOnly("org.projectlombok:lombok:${versions["lombok"]}")
@@ -53,6 +66,9 @@ dependencies {
     testImplementation("org.assertj:assertj-core:${versions["assertj"]}")
     testImplementation("org.mockito:mockito-core:${versions["mockito"]}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers:${versions["spring-test-cont"]}")
+    testImplementation("org.testcontainers:junit-jupiter:${versions["testcontainers"]}")
+    testImplementation("org.testcontainers:postgresql:${versions["testcontainers"]}")
 }
 
 tasks.test {

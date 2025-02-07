@@ -29,18 +29,13 @@ public class FileProcessingService {
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
     private final PackingStrategyFactory packingStrategyFactory;
-    private final OrderManagerService orderManagerService;
+    private final OutboxEventService outboxEventService;
     private final Clock clock;
+
     /**
      * Обрабатывает файл с посылками и параметры командной строки, выполняя упаковку в грузовики.
-     *
-     * @param parcelsFile    путь к файлу с посылками (может быть null, если используются данные из строки)
-     * @param parcelsText    текстовый ввод с данными о посылках (если файл отсутствует)
-     * @param trucksFromArgs список параметров для создания грузовиков
-     * @param isEasyAlgorithm     флаг использования простого алгоритма упаковки
-     * @param saveToFile     флаг, указывающий, сохранять ли данные грузовиков в файл
-     * @param isEvenAlgorithm     флаг использования алгоритма равномерного распределения
      */
+
     public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
                               boolean isEasyAlgorithm, boolean saveToFile, boolean isEvenAlgorithm, String user) {
         List<Package> packages = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
@@ -56,6 +51,7 @@ public class FileProcessingService {
 
         return truckService.printTrucks(trucks);
     }
+
 
     private void addLoadOrder(List<Truck> trucks, String userId) {
         List<Package> allPackages = new ArrayList<>();
@@ -75,9 +71,11 @@ public class FileProcessingService {
                 truckCount,
                 allPackages
         );
-        orderManagerService.addOrder(order);
+
+        outboxEventService.saveOrderEvent(order,"ORDER_CREATED");
         log.info("Заказ на погрузку добавлен для пользователя {}", userId);
     }
+
 
     private List<Package> getPackagesFromFileOrArgs(Path parcelsFile, String parcelsText) {
         List<Package> packages = new ArrayList<>();
@@ -94,11 +92,6 @@ public class FileProcessingService {
         return packages;
     }
 
-    /**
-     * Сохраняет данные о грузовиках в формате JSON.
-     *
-     * @param trucks список грузовиков для сохранения
-     */
     protected void saveTrucksToJson(List<Truck> trucks) {
         log.info("Сохраняем данные грузовиков в JSON...");
         String result = jsonProcessingService.saveToJson(trucks);
@@ -106,13 +99,6 @@ public class FileProcessingService {
 
     }
 
-    /**
-     * Разбирает строки файла и преобразует их в список упаковок.
-     *
-     * @param filePath путь к файлу
-     * @param lines    строки файла
-     * @return список объектов Package
-     */
     protected List<Package> parseFileLines(Path filePath, List<String> lines) {
         List<Package> packages = fileParser.parsePackagesFromFile(lines);
         if (packages.isEmpty()) {

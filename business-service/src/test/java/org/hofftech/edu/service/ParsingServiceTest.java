@@ -26,9 +26,9 @@ class ParsingServiceTest {
     void shouldParsePackagesFromFile() {
         List<String> lines = List.of("Посылка Тип 1", "Посылка Тип 2");
 
-        Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 1"))
+        Mockito.when(packageRepositoryMock.findById("Посылка Тип 1"))
                 .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', 0, 0)));
-        Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 2"))
+        Mockito.when(packageRepositoryMock.findById("Посылка Тип 2"))
                 .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', 0, 0)));
 
         List<Package> result = parsingService.parsePackagesFromFile(lines);
@@ -44,7 +44,7 @@ class ParsingServiceTest {
     void shouldThrowExceptionForMissingPackage() {
         List<String> lines = List.of("package1");
 
-        Mockito.when(packageRepositoryMock.findPackage("package1"))
+        Mockito.when(packageRepositoryMock.findById("package1"))
                 .thenReturn(Optional.empty());
 
         Assertions.assertThatThrownBy(() -> parsingService.parsePackagesFromFile(lines))
@@ -56,9 +56,9 @@ class ParsingServiceTest {
     void shouldParsePackagesFromArgs() {
         String parcelsText = "Посылка Тип 1, Посылка Тип 2";
 
-        Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 1"))
+        Mockito.when(packageRepositoryMock.findById("Посылка Тип 1"))
                 .thenReturn(Optional.of(new Package("Посылка Тип 1", null, '1', 0, 0)));
-        Mockito.when(packageRepositoryMock.findPackage("Посылка Тип 2"))
+        Mockito.when(packageRepositoryMock.findById("Посылка Тип 2"))
                 .thenReturn(Optional.of(new Package("Посылка Тип 2", null, '2', 0, 0)));
 
         List<Package> result = parsingService.getPackagesFromArgs(parcelsText);

@@ -1,12 +1,19 @@
 spring:
+  aop:
+    proxy-target-class: true
+    expose-proxy: true
+
   datasource:
     url: jdbc:postgresql://localhost:5433/postgres
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
 
+
   flyway:
     enabled: true
+    schemas: edu
+    table: flyway_schema_history_edu
     locations: classpath:db/migration
 
   servlet:
@@ -18,7 +25,35 @@ spring:
     interactive:
       enabled: true
 
+  kafka:
+    bootstrap-servers: kafka:9092
 
-
-
-
+  cloud:
+    function:
+      # Определяем функцию-потребитель для получения ответов по отчётам
+      definition: reportResponseConsumer
+    stream:
+      defaultBinder: kafka
+      binders:
+        kafka:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: kafka:9092
+      bindings:
+        # Канал для отправки запроса на отчёт.
+        reportRequest-out-0:
+          destination: report-request-topic
+          content-type: application/json
+        # Канал для отправки событий создания заказов.
+        orderCreated-out-0:
+          destination: order-created-topic
+          content-type: application/json
+        # Канал для приёма ответа (отчёта) с сохранённым correlationId.
+        reportResponseConsumer-in-0:
+          destination: report-response-topic
+          content-type: application/json

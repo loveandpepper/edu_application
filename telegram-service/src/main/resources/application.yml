@@ -1,5 +1,10 @@
 app:
-  base-url: "http://localhost:8080/api/packages"
+  base-url: "http://business-service:8080/api/packages"
 
 server:
   port: 8082
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}
+    name: ${TELEGRAM_BOT_NAME}
