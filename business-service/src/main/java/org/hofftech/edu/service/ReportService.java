@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 public class ReportService {
 
     private final StreamBridge streamBridge;
-    private final ObjectMapper objectMapper;
 
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
@@ -40,9 +39,9 @@ public class ReportService {
             String correlationId = UUID.randomUUID().toString();
 
             ReportRequestDto request = new ReportRequestDto(user, dateFrom, dateTo);
-            String payload = objectMapper.writeValueAsString(request);
 
-            Message<String> message = MessageBuilder.withPayload(payload)
+            Message<ReportRequestDto> message = MessageBuilder
+                    .withPayload(request)
                     .setHeader("correlationId", correlationId)
                     .build();
 

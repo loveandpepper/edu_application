@@ -3,18 +3,18 @@ package org.hofftech.edu.billing.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.billing.model.dto.InboxEventDto;
+import org.hofftech.edu.billing.exception.BillingException;
+import org.hofftech.edu.billing.mapper.InboxEventMapper;
+import org.hofftech.edu.billing.model.InboxEventEntity;
 import org.hofftech.edu.billing.model.Order;
+import org.hofftech.edu.billing.model.dto.InboxEventDto;
 import org.hofftech.edu.billing.model.dto.ReportRequestDto;
 import org.hofftech.edu.billing.repository.InboxEventRepository;
-import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,28 +24,20 @@ public class BillingConsumer {
     private final InboxEventRepository inboxRepository;
     private final OrderManagerService orderManagerService;
     private final ObjectMapper objectMapper;
+    private final InboxEventMapper inboxEventMapper;
 
     @Transactional
-    public void handleOrderEvent(String payload) {
+    public void handleOrderEvent(InboxEventDto inboxEventDto) {
         try {
-            InboxEventDto inboxEventDto = objectMapper.readValue(payload, InboxEventDto.class);
+            InboxEventEntity inboxEventEntity = inboxEventMapper.toEntity(inboxEventDto);
 
-            if (inboxRepository.findByEventId(inboxEventDto.getEventId()).isPresent()) {
-                log.info("Дубликат eventId {}, пропускаем", inboxEventDto.getEventId());
-                return;
-            }
+            inboxRepository.save(inboxEventEntity);
+            log.info("Событие eventId {} успешно обработано", inboxEventDto.getEventId());
 
-            inboxEventDto.setReceivedAt(Instant.now());
-            inboxEventDto.setProcessed(true);
-
-            inboxRepository.save(inboxEventDto);
-
-            if (inboxEventDto.isProcessed()) {
-                Order order = objectMapper.readValue(inboxEventDto.getPayload(), Order.class);
-                orderManagerService.addOrder(order);
-            }
+            Order order = objectMapper.readValue(inboxEventDto.getPayload(), Order.class);
+            orderManagerService.addOrder(order);
         } catch (Exception e) {
-            log.error("Ошибка обработки события ORDER_CREATED", e);
+            throw new BillingException("Ошибка обработки события " + e.getMessage());
         }
     }
 
@@ -57,10 +49,10 @@ public class BillingConsumer {
      * Обрабатывает сообщения из топика report-request-topic и отправляет ответы в report-response-topic.
      */
     @Transactional
-    public Message<String> handleReportRequest(Message<String> message) {
+    public Message<String> handleReportRequest(Message<ReportRequestDto> message) {
         String correlationId = message.getHeaders().get(CORRELATION_ID, String.class);
         try {
-            ReportRequestDto request = objectMapper.readValue(message.getPayload(), ReportRequestDto.class);
+            ReportRequestDto request = message.getPayload();
             log.info("Обрабатываем запрос на отчёт для пользователя {}", request.getUserId());
 
             String reportData = orderManagerService.generateReport(

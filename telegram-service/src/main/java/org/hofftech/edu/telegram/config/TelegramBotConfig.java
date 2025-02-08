@@ -1,39 +1,15 @@
 package org.hofftech.edu.telegram.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.telegram.controller.TelegramBotController;
 import org.hofftech.edu.telegram.exception.RegisterBotException;
 import org.hofftech.edu.telegram.service.TelegramHandlerFactory;
-import org.hofftech.edu.telegram.service.CommandParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
-
-/**
- * Конфигурационный класс для телеграм-бота
- */
 
 @Configuration
-public class TelegramConfig {
+public class TelegramBotConfig {
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
-    @Bean
-    public CommandParser commandParser() {
-        return new CommandParser();
-    }
-
-    /**
-     * Поднимаем TelegramBotController как бин.
-     * При этом передадим ему все нужные зависимости:
-     * - токен, имя бота из application.properties (telegram.bot.token / telegram.bot.name),
-     * - фабрику обработчиков команд (CommandHandlerFactory),
-     * - регистрируем бота
-     */
     @Bean
     public TelegramBotController telegramBotController(
             @Value("${telegram.bot.token}") String token,
@@ -49,3 +25,4 @@ public class TelegramConfig {
         return botController;
     }
 }
+

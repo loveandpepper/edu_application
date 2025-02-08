@@ -25,6 +25,7 @@ val versions = mapOf(
     "junitBom" to "5.10.0",
     "assertj" to "3.23.1",
     "mockito" to "5.5.0",
+    "mapStruct" to "1.6.3",
     "springShell" to "3.3.2",
     "flyway" to "11.2.0",
     "flywayPostgresql" to "11.2.0",
@@ -43,6 +44,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.flywaydb:flyway-core:${versions["flyway"]}")
+    implementation("org.mapstruct:mapstruct:${versions["mapStruct"]}")
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
@@ -53,6 +55,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:${versions["lombok"]}")
 
     annotationProcessor("org.projectlombok:lombok:${versions["lombok"]}")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${versions["mapStruct"]}")
 
     testCompileOnly("org.projectlombok:lombok:${versions["lombok"]}")
     testAnnotationProcessor("org.projectlombok:lombok:${versions["lombok"]}")

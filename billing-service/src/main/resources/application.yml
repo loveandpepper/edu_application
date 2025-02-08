@@ -1,3 +1,7 @@
+order:
+  load: 80
+  unload: 50
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/postgres
@@ -61,3 +65,5 @@ logging:
     root: INFO
   file:
     name: logs/console-service.log
+
+
