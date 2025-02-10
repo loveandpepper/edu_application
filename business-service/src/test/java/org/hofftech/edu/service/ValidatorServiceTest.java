@@ -19,7 +19,7 @@ class ValidatorServiceTest {
     @Test
     void shouldValidateFormSuccessfully() {
         String form = "****,*  *,****";
-        List<String> result = validatorService.validateForm(form);
+        String[] result = validatorService.validateForm(form);
 
         Assertions.assertThat(result)
                 .isNotEmpty()
@@ -36,14 +36,11 @@ class ValidatorServiceTest {
 
     @Test
     void shouldThrowExceptionForDiagonalTouch() {
-        List<String> invalidForm = List.of(
-                " * ",
-                "* *"
-        );
+        String[] invalidForm = new String[]{"****", " ** "};
 
         Assertions.assertThatThrownBy(() -> validatorService.validateDiagonalTouch(invalidForm))
                 .isInstanceOf(ValidateException.class)
-                .hasMessageContaining("Символ в позиции");
+                .hasMessageContaining("Символ висит");
     }
 
     @Test

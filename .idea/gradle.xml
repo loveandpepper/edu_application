@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/billing-service" />
             <option value="$PROJECT_DIR$/business-service" />
             <option value="$PROJECT_DIR$/console-service" />
             <option value="$PROJECT_DIR$/telegram-service" />

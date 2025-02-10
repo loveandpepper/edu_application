@@ -21,11 +21,12 @@ class TruckServiceTest {
         truckService = new TruckService(packingServiceMock);
     }
 
+
     @Disabled
     @Test
     void shouldAddPackagesToMultipleTrucks() {
         List<Package> packages = List.of(new Package("Посылка Тип 1", null, '1', 0, 0),
-                new Package("Посылка Тип 2", null, '2', 0, 0));
+                new Package("Посылка Тип 2", new String[]{"22"}, '2', 0, 0));
         List<String> trucksFromArgs = List.of("6x6", "6x5");
 
         Mockito.when(packingServiceMock.tryPack(Mockito.any(), Mockito.any()))
@@ -37,6 +38,7 @@ class TruckServiceTest {
                 .isNotEmpty()
                 .hasSize(1);
     }
+
 
     @Disabled
     @Test

@@ -17,7 +17,6 @@ public class CreateCommandProcessor implements CommandProcessor {
     private final ValidatorService validatorService;
 
     private static final int FIRST_CHAR_INDEX = 0;
-    private static final int POSITION_START_INDEX = 0;
 
     @Override
     public String execute(ParsedCommand command) {

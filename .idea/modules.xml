@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/edu_application_multi_module.iml" filepath="$PROJECT_DIR$/.idea/modules/edu_application_multi_module.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.iml" filepath="$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/billing-service/edu_application_multi_module.billing-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/billing-service/edu_application_multi_module.billing-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/billing-service/edu_application_multi_module.billing-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/billing-service/edu_application_multi_module.billing-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/business-service/edu_application_multi_module.business-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/console-service/edu_application_multi_module.console-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/console-service/edu_application_multi_module.console-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/telegram-service/edu_application_multi_module.telegram-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/telegram-service/edu_application_multi_module.telegram-service.main.iml" />
     </modules>

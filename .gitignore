@@ -36,7 +36,6 @@ build/
 
 # Maven
 target/
-*.log
 
 # VS Code
 .vscode/
@@ -63,3 +62,6 @@ Thumbs.db
 
 # Other
 *.~*
+logs/
+*/build/
+*/logs/

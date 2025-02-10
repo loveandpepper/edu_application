@@ -1,14 +1,15 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hofftech.edu.exception.BillingException;
+import org.hofftech.edu.exception.ValidateException;
 import org.hofftech.edu.model.ParsedCommand;
-import org.hofftech.edu.service.OrderManagerService;
+import org.hofftech.edu.service.ReportService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 
 @RequiredArgsConstructor
 public class BillingCommandProcessor implements CommandProcessor {
-    private final OrderManagerService orderManagerService;
+
+    private final ReportService reportService;
 
     @Override
     public String execute(ParsedCommand command) {
@@ -17,9 +18,9 @@ public class BillingCommandProcessor implements CommandProcessor {
         String dateTo = command.getTo();
 
         if (!isArgumentsNotEmpty(user, dateFrom, dateTo)) {
-            throw new BillingException("Пользователь и диапазон дат должны быть указаны в BILLING");
+            throw new ValidateException("Пользователь и диапазон дат должны быть указаны в BILLING");
         }
-        return orderManagerService.generateReport(user, dateFrom, dateTo);
+        return reportService.generateReport(user, dateFrom, dateTo);
 
     }
 

@@ -8,7 +8,7 @@ import org.hofftech.edu.repository.PackageRepository;
 import org.hofftech.edu.service.FileProcessingService;
 import org.hofftech.edu.service.FileSavingService;
 import org.hofftech.edu.service.JsonProcessingService;
-import org.hofftech.edu.service.OrderManagerService;
+import org.hofftech.edu.service.ReportService;
 import org.hofftech.edu.service.ValidatorService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.BillingCommandProcessor;
@@ -21,7 +21,6 @@ import org.hofftech.edu.service.commandprocessor.impl.LoadCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.StartCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.UnloadCommandProcessor;
 import org.hofftech.edu.service.commandprocessor.impl.UpdateCommandProcessor;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 public class CommandProcessorFactory {
@@ -31,8 +30,8 @@ public class CommandProcessorFactory {
     private final JsonProcessingService jsonProcessingService;
     private final FileSavingService fileSavingService;
     private final ValidatorService validatorService;
-    private final OrderManagerService orderManagerService;
     private final PackageMapper packageMapper;
+    private final ReportService reportService;
 
     public CommandProcessor createProcessor(CommandType commandType) {
         return switch (commandType) {
@@ -43,7 +42,7 @@ public class CommandProcessorFactory {
             case LIST -> new ListCommandProcessor(repository, packageMapper);
             case LOAD -> new LoadCommandProcessor(fileProcessingService);
             case UNLOAD -> new UnloadCommandProcessor(jsonProcessingService, fileSavingService);
-            case BILLING -> new BillingCommandProcessor(orderManagerService);
+            case BILLING -> new BillingCommandProcessor(reportService);
             case START -> new StartCommandProcessor();
             case EXIT -> new ExitCommandProcessor();
             case null, default -> throw new ProcessorException("Процессор для команды не найден");

@@ -1,5 +1,6 @@
 package org.hofftech.edu.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,10 +13,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Класс, представляющий упаковку.
@@ -28,6 +26,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Package implements Comparable<Package> {
 
     @Id
@@ -59,24 +58,6 @@ public class Package implements Comparable<Package> {
 
     public int getHeight() {
         return shape.length;
-    }
-
-    /**
-     * Обновляет символ упаковки на новый.
-     * Также заменяет старый символ на новый во всех строках формы упаковки.
-     *
-     * @param newSymbol новый символ для упаковки.
-     */
-    public void updateSymbol(char newSymbol) {
-        if (shape == null || shape.length == 0) {
-            return;
-        }
-
-        String[] updatedShape = new String[shape.length];
-        for (int i = 0; i < shape.length; i++) {
-            updatedShape[i] = shape[i].replace(symbol, newSymbol);
-        }
-        this.shape = updatedShape;
     }
 
     /**

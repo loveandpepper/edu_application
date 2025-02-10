@@ -3,21 +3,10 @@ package org.hofftech.edu.telegram.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.edu.telegram.dto.BillingCommandDto;
-import org.hofftech.edu.telegram.dto.CreateCommandDto;
-import org.hofftech.edu.telegram.dto.LoadCommandDto;
-import org.hofftech.edu.telegram.dto.UnloadCommandDto;
-import org.hofftech.edu.telegram.dto.UpdateCommandDto;
 import org.hofftech.edu.telegram.exception.RegisterBotException;
 import org.hofftech.edu.telegram.exception.TelegramHandleException;
 import org.hofftech.edu.telegram.handler.CommandHandler;
-import org.hofftech.edu.telegram.service.CommandParser;
 import org.hofftech.edu.telegram.service.TelegramHandlerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -73,14 +62,17 @@ public class TelegramBotController extends TelegramLongPollingBot {
     }
 
     private void handleCommand(String command, Long chatId) {
-        String[] parts = command.split("\\s", 2);
-        String commandName = parts[0].toLowerCase();
+        try {
+            String[] parts = command.split("\\s+", 2);
+            String commandName = parts[0].toLowerCase();
 
-        CommandHandler handler = telegramHandlerFactory.getHandler(commandName);
-
-
-        String result = handler.handle(command);
-        sendResponse(chatId, result); //TODO:Возвращать эксепшены в тг
+            CommandHandler handler = telegramHandlerFactory.getHandler(commandName);
+            String result = handler.handle(command);
+            sendResponse(chatId, result);
+        } catch (Exception e) {
+            sendResponse(chatId, "Произошла ошибка при обработке команды: " + e.getMessage());
+            throw new TelegramHandleException("Ошибка при обработке команды " + e.getMessage());
+        }
     }
 
     private void sendResponse(Long chatId, String message) {
