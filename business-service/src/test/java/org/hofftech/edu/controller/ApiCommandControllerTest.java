@@ -2,19 +2,12 @@ package org.hofftech.edu.controller;
 
 import org.hofftech.edu.AbstractPostgresContainer;
 import org.hofftech.edu.service.ReportService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -115,10 +108,10 @@ class ApiCommandControllerTest extends AbstractPostgresContainer {
     }
 
 
+
     @Disabled
     @Test
     void testBilling() throws Exception {
-
         when(reportService.generateReport(anyString(), any(), any()))
                 .thenReturn("07-02-2025; Погрузка; 2 машин; 2 посылок; 800 рублей");
 

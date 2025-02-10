@@ -1,6 +1,7 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.edu.exception.ValidateException;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.ReportService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
@@ -17,7 +18,7 @@ public class BillingCommandProcessor implements CommandProcessor {
         String dateTo = command.getTo();
 
         if (!isArgumentsNotEmpty(user, dateFrom, dateTo)) {
-            throw new IllegalArgumentException("Пользователь и диапазон дат должны быть указаны в BILLING");
+            throw new ValidateException("Пользователь и диапазон дат должны быть указаны в BILLING");
         }
         return reportService.generateReport(user, dateFrom, dateTo);
 

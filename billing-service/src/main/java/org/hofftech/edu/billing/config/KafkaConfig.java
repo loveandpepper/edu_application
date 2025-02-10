@@ -1,8 +1,7 @@
 package org.hofftech.edu.billing.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hofftech.edu.billing.mapper.InboxEventMapper;
-import org.hofftech.edu.billing.model.dto.InboxEventDto;
+import org.hofftech.edu.billing.model.Order;
 import org.hofftech.edu.billing.model.dto.ReportRequestDto;
 import org.hofftech.edu.billing.repository.InboxEventRepository;
 import org.hofftech.edu.billing.service.BillingConsumer;
@@ -15,18 +14,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Configuration
-public class EventProcessingConfig {
+public class KafkaConfig {
 
     @Bean
     public BillingConsumer billingConsumer(InboxEventRepository inboxRepository,
                                            OrderManagerService orderManagerService,
-                                           ObjectMapper objectMapper,
-                                           InboxEventMapper inboxEventMapper) {
-        return new BillingConsumer(inboxRepository, orderManagerService, objectMapper, inboxEventMapper);
+                                           ObjectMapper objectMapper) {
+        return new BillingConsumer(inboxRepository, orderManagerService, objectMapper);
     }
 
     @Bean
-    public Consumer<InboxEventDto> orderEventConsumer(BillingConsumer billingConsumer) {
+    public Consumer<Message<Order>> orderEventConsumer(BillingConsumer billingConsumer) {
         return billingConsumer::handleOrderEvent;
     }
 

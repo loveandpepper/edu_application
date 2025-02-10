@@ -1,8 +1,8 @@
 package org.hofftech.edu.service.commandprocessor.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hofftech.edu.exception.LoadException;
 import org.hofftech.edu.exception.UserNotProvidedException;
+import org.hofftech.edu.exception.ValidateException;
 import org.hofftech.edu.model.ParsedCommand;
 import org.hofftech.edu.service.FileProcessingService;
 import org.hofftech.edu.service.commandprocessor.CommandProcessor;
@@ -44,7 +44,7 @@ public class LoadCommandProcessor implements CommandProcessor {
                     Path.of(parcelsFile), null, trucksFromArgs, useEasyAlgorithm, saveToFile,
                     useEvenAlgorithm, user);
         } else {
-            throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
+            throw new ValidateException("Укажите источник посылок (текст или файл)");
         }
     }
 }

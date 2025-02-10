@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.billing.exception.BillingException;
-import org.hofftech.edu.billing.mapper.InboxEventMapper;
 import org.hofftech.edu.billing.model.InboxEventEntity;
 import org.hofftech.edu.billing.model.Order;
-import org.hofftech.edu.billing.model.dto.InboxEventDto;
 import org.hofftech.edu.billing.model.dto.ReportRequestDto;
 import org.hofftech.edu.billing.repository.InboxEventRepository;
 import org.springframework.messaging.Message;
@@ -15,6 +13,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,21 +23,34 @@ public class BillingConsumer {
     private final InboxEventRepository inboxRepository;
     private final OrderManagerService orderManagerService;
     private final ObjectMapper objectMapper;
-    private final InboxEventMapper inboxEventMapper;
 
     @Transactional
-    public void handleOrderEvent(InboxEventDto inboxEventDto) {
+    public void handleOrderEvent(Message<Order> message) {
         try {
-            InboxEventEntity inboxEventEntity = inboxEventMapper.toEntity(inboxEventDto);
+            String eventId = message.getHeaders().get("eventId", String.class);
+            String eventType = message.getHeaders().get("eventType", String.class);
 
-            inboxRepository.save(inboxEventEntity);
-            log.info("Событие eventId {} успешно обработано", inboxEventDto.getEventId());
+            Order order = message.getPayload();
+            String rawOrderJson = objectMapper.writeValueAsString(order);
 
-            Order order = objectMapper.readValue(inboxEventDto.getPayload(), Order.class);
+            createInboxEvent(eventId, eventType, rawOrderJson);
+
             orderManagerService.addOrder(order);
         } catch (Exception e) {
             throw new BillingException("Ошибка обработки события " + e.getMessage());
         }
+    }
+
+    private void createInboxEvent(String eventId, String eventType, String rawOrderJson) {
+        InboxEventEntity inboxEventEntity = new InboxEventEntity();
+        inboxEventEntity.setEventId(eventId);
+        inboxEventEntity.setEventType(eventType);
+        inboxEventEntity.setPayload(rawOrderJson);
+        inboxEventEntity.setReceivedAt(Instant.now());
+        inboxEventEntity.setProcessed(true);
+        inboxRepository.save(inboxEventEntity);
+
+        log.info("Событие eventId {} успешно обработано", eventId);
     }
 
 

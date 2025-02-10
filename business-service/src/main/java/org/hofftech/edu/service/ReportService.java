@@ -1,12 +1,10 @@
 package org.hofftech.edu.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.edu.exception.KafkaException;
 import org.hofftech.edu.model.dto.ReportRequestDto;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
@@ -22,6 +20,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class ReportService {
 
+    private static final String CORRELATION_ID = "correlationId";
     private final StreamBridge streamBridge;
 
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
@@ -42,7 +41,7 @@ public class ReportService {
 
             Message<ReportRequestDto> message = MessageBuilder
                     .withPayload(request)
-                    .setHeader("correlationId", correlationId)
+                    .setHeader(CORRELATION_ID, correlationId)
                     .build();
 
             CompletableFuture<String> future = new CompletableFuture<>();
@@ -70,7 +69,7 @@ public class ReportService {
      */
     public Consumer<Message<String>> getReportResponseConsumer() {
         return message -> {
-            String correlationId = message.getHeaders().get("correlationId", String.class);
+            String correlationId = message.getHeaders().get(CORRELATION_ID, String.class);
             if (correlationId != null) {
                 CompletableFuture<String> future = pendingRequests.get(correlationId);
                 if (future != null) {

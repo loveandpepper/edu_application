@@ -2,9 +2,9 @@ package org.hofftech.edu.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,6 +12,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Order {
 
     private String userId;

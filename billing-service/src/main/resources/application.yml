@@ -1,6 +1,6 @@
 order:
-  load: 80
-  unload: 50
+  load-cost: 80
+  unload-cost: 50
 
 spring:
   datasource:

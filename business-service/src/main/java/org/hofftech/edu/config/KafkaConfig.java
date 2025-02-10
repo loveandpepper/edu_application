@@ -16,13 +16,15 @@ import java.util.function.Consumer;
 public class KafkaConfig {
 
     @Bean
-    public OutboxEventService outboxEventService(OutboxEventRepository outboxEventRepository, ObjectMapper objectMapper) {
+    public OutboxEventService outboxEventService(OutboxEventRepository outboxEventRepository,
+                                                 ObjectMapper objectMapper) {
         return new OutboxEventService(outboxEventRepository, objectMapper);
     }
 
     @Bean
-    public OutboxOrderService outboxOrderPublisher(OutboxEventRepository outboxEventRepository, StreamBridge streamBridge) {
-        return new OutboxOrderService(outboxEventRepository, streamBridge);
+    public OutboxOrderService outboxOrderPublisher(OutboxEventRepository outboxEventRepository,
+                                                   StreamBridge streamBridge, ObjectMapper objectMapper) {
+        return new OutboxOrderService(outboxEventRepository, streamBridge, objectMapper);
     }
 
     @Bean
