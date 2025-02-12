@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,10 +27,10 @@ public class OrderManagerService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     @Value("${order.load-cost}")
-    private int loadCost;
+    private BigDecimal loadCost;
 
     @Value("${order.unload-cost}")
-    private int unloadCost;
+    private BigDecimal unloadCost;
 
     /**
      * Добавляет заказ в список, учитывая многопоточные операции.
@@ -40,18 +42,19 @@ public class OrderManagerService {
     /**
      * Вычисляет общую стоимость заказа в зависимости от типа операции.
      */
-    private int getTotalCost(Order order) {
+    private BigDecimal getTotalCost(Order order) {
         if (order.getPackages() == null || order.getPackages().isEmpty()) {
-            return 0;
+            return BigDecimal.ZERO;
         }
 
-        int costPerSegment = (order.getOperationType() == OrderOperationType.LOAD)
+        BigDecimal costPerSegment = (order.getOperationType() == OrderOperationType.LOAD)
                 ? loadCost
                 : unloadCost;
 
         return order.getPackages().stream()
-                .mapToInt(pkg -> countSegments(pkg.getShape()) * costPerSegment)
-                .sum();
+                .map(pkg -> BigDecimal.valueOf(countSegments(pkg.getShape()))
+                        .multiply(costPerSegment))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private int countSegments(String[] shape) {
@@ -97,12 +100,14 @@ public class OrderManagerService {
 
         return filtered.stream()
                 .map(order -> String.format(
-                        "%s; %s; %d машин; %d посылок; %d рублей",
+                        "%s; %s; %d машин; %d посылок; %s рублей",
                         order.getDate().format(FORMATTER),
                         order.getOperationType().getDescription(),
                         order.getTruckCount(),
                         order.getPackages().size(),
                         getTotalCost(order)
+                                .setScale(2, RoundingMode.HALF_UP)
+                                .toPlainString()
                 ))
                 .collect(Collectors.joining("\n"));
     }

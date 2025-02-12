@@ -6,13 +6,16 @@ import org.hofftech.edu.billing.model.OrderOperationType;
 import org.hofftech.edu.billing.model.Package;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 
 class OrderManagerServiceTest {
 
@@ -21,6 +24,8 @@ class OrderManagerServiceTest {
     @BeforeEach
     void setUp() {
         orderManagerService = new OrderManagerService();
+        ReflectionTestUtils.setField(orderManagerService, "loadCost", new BigDecimal("80.00"));
+        ReflectionTestUtils.setField(orderManagerService, "unloadCost", new BigDecimal("50.00"));
     }
 
     @Test

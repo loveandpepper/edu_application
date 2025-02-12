@@ -2,7 +2,6 @@ package org.hofftech.edu.controller;
 
 import org.hofftech.edu.AbstractPostgresContainer;
 import org.hofftech.edu.service.ReportService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,7 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,8 +35,6 @@ class ApiCommandControllerTest extends AbstractPostgresContainer {
 
     @MockitoSpyBean
     private ReportService reportService;
-
-
 
     @Test
     void testCreatePackage() throws Exception {
@@ -108,12 +105,10 @@ class ApiCommandControllerTest extends AbstractPostgresContainer {
     }
 
 
-
-    @Disabled
     @Test
     void testBilling() throws Exception {
-        when(reportService.generateReport(anyString(), any(), any()))
-                .thenReturn("07-02-2025; Погрузка; 2 машин; 2 посылок; 800 рублей");
+        doReturn("07-02-2025; Погрузка; 2 машин; 2 посылок; 800 рублей")
+                .when(reportService).generateReport(anyString(), any(), any());
 
         String billingJson = """
             {
